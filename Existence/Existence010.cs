@@ -1,5 +1,7 @@
-﻿using Cartheur.Ideal.Mooc.Coupling;
+﻿using Cartheur.Ideal.Mooc.Agent;
+using Cartheur.Ideal.Mooc.Coupling;
 using Cartheur.Ideal.Mooc.Interfaces;
+using System.Collections;
 
 namespace Cartheur.Ideal.Mooc.Existence
 {
@@ -24,6 +26,8 @@ namespace Cartheur.Ideal.Mooc.Existence
         private Mood mood;
         private int selfSatisfactionCounter = 0;
         private Experiment previousExperience;
+        private Interaction enactedInteraction;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Existence010"/> class.
         /// </summary>
@@ -35,20 +39,19 @@ namespace Cartheur.Ideal.Mooc.Existence
         protected void InitializeExistence()
         {
             // 010-level features
-            //Experiment e1 = AddOrGetExperience(LABEL_E1);
-            //AddOrGetExperience(LABEL_E2);
-            //SetPreviousExperience(e1);
-            // 020-level features
             Experiment e1 = AddOrGetExperience(LABEL_E1);
+            AddOrGetExperience(LABEL_E2);
+            SetPreviousExperience(e1);
+            // 020-level features
             Experiment e2 = AddOrGetExperience(LABEL_E2);
             Result r1 = CreateOrGetResult(LABEL_R1);
             Result r2 = CreateOrGetResult(LABEL_R2);
-            // Change the valence of interactions to change the agent's motivation.
+
             AddOrGetPrimitiveInteraction(e1, r1, -1);
             AddOrGetPrimitiveInteraction(e1, r2, 1);
             AddOrGetPrimitiveInteraction(e2, r1, -1);
             AddOrGetPrimitiveInteraction(e2, r2, 1);
-            SetPreviousExperience(e1);
+            //SetPreviousExperience(e1); <-- 030-level feature requisite
         }
 
         /// <summary>
@@ -59,48 +62,230 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// </returns>
         public string Step()
         {
-            Experiment experience = GetPreviousExperience();
-            if (GetMood() == Mood.BORED)
-            {
-                experience = GetOtherExperience(experience);
-                SetSelfSatisfactionCounter(0);
-            }
+            List<Anticipation> anticipations = Anticipate();
+            Experiment experience = SelectExperience(anticipations);
+            //Experiment experience = SelectInteraction(anticipations).GetExperience();
 
-            if (GetMood() == Mood.PAINED)
-                experience = GetOtherExperience(experience);
+            /** Change the call to the function returnResult to change the environment */
+            //Result result = ReturnResult010(experience);
+            //Result result = ReturnResult030(experience);
+            Result result = ReturnResult031(experience);
 
-            Result anticipatedResult = Predict(experience);
-
-            Result result = ReturnResult010(experience);
-
-            Interaction enactedInteraction = (Interaction)AddOrGetPrimitiveInteraction(experience, result);
+            Interaction enactedInteraction = GetInteraction(experience.GetLabel() + result.GetLabel());
+            Console.WriteLine("Enacted " + enactedInteraction.toString());
 
             if (enactedInteraction.GetValence() >= 0)
                 SetMood(Mood.PLEASED);
             else
                 SetMood(Mood.PAINED);
 
-            AddOrGetPrimitiveInteraction(experience, result);
+            LearnCompositeInteraction(enactedInteraction);
 
-            if (result == anticipatedResult)
-            {
-                SetMood(Mood.SELF_SATISFIED);
-                IncSelfSatisfactionCounter();
-            }
-            else
-            {
-                SetMood(Mood.FRUSTRATED);
-                SetSelfSatisfactionCounter(0);
-            }
-            if (GetSelfSatisfactionCounter() >= BOREDOME_LEVEL)
-                SetMood(Mood.BORED);
+            SetEnactedInteraction(enactedInteraction);
 
-            SetPreviousExperience(experience);
+            return "" + GetMood();
 
-            return experience.GetLabel() + result.GetLabel() + GetMood();
+            #region Previous version
+            //Experiment experience = GetPreviousExperience();
+            //if (GetMood() == Mood.PAINED)
+            //    experience = GetOtherExperience(experience);
+            //if (GetMood() == Mood.BORED)
+            //{
+            //    experience = GetOtherExperience(experience);
+            //    SetSelfSatisfactionCounter(0);
+            //}
+            //Result anticipatedResult = Predict(experience);
+            //Result result = ReturnResult010(experience);
+            //AddOrGetPrimitiveInteraction(experience, result);
+
+            //Interaction enactedInteraction = (Interaction)AddOrGetPrimitiveInteraction(experience, result);
+
+            //if (result == anticipatedResult)
+            //{
+            //    SetMood(Mood.SELF_SATISFIED);
+            //    IncSelfSatisfactionCounter();
+            //}
+            //else
+            //{
+            //    SetMood(Mood.FRUSTRATED);
+            //    SetSelfSatisfactionCounter(0);
+            //}
+            //if (GetSelfSatisfactionCounter() >= BOREDOME_LEVEL)
+            //    SetMood(Mood.BORED);
+            //if (enactedInteraction.GetValence() >= 0)
+            //    SetMood(Mood.PLEASED);
+            //else
+            //    SetMood(Mood.PAINED);
+
+            //SetPreviousExperience(experience);
+
+            //return experience.GetLabel() + result.GetLabel() + "--" + GetMood();
+            #endregion
         }
 
-        #region Interaction
+        /**
+	 * Learn the composite interaction from the previous enacted interaction and the current enacted interaction
+	 */
+        public void LearnCompositeInteraction(Interaction enactedInteraction)
+        {
+            Interaction preInteraction = GetEnactedInteraction();
+            Interaction postInteraction = enactedInteraction;
+            if (preInteraction != null)
+            {
+                Interaction interaction = (Interaction)AddOrGetCompositeInteraction(preInteraction, postInteraction);
+                interaction.IncrementWeight();
+            }
+        }
+
+        /**
+         * Records a composite interaction in memory
+         * @param preInteraction: The composite interaction's pre-interaction
+         * @param postInteraction: The composite interaction's post-interaction
+         * @return the learned composite interaction
+         */
+        public Interaction AddOrGetCompositeInteraction(Interaction preInteraction, Interaction postInteraction)
+        {
+            int valence = preInteraction.GetValence() + postInteraction.GetValence();
+            Interaction interaction = (Interaction)AddOrGetInteraction(preInteraction.GetLabel() + postInteraction.GetLabel());
+            interaction.SetPreInteraction(preInteraction);
+            interaction.SetPostInteraction(postInteraction);
+            interaction.SetValence(valence);
+            Console.WriteLine("learn " + interaction.GetLabel());
+            return interaction;
+        }
+
+        protected Interaction CreateInteraction(String label)
+        {
+            return new Interaction(label);
+        }
+
+        /// <summary>
+        /// Computes the list of anticipations.
+        /// </summary>
+        /// <returns>The list of anticipations</returns>       
+        public List<Anticipation> Anticipate()
+        {
+            List<Anticipation> anticipations = GetDefaultAnticipations();
+
+            if (GetEnactedInteraction() != null)
+            {
+                foreach (Interaction activatedInteraction in GetActivatedInteractions())
+                {
+                    Anticipation proposition = new Anticipation(((Interaction)activatedInteraction).GetPostInteraction().GetExperience(), ((Interaction)activatedInteraction).GetWeight() * ((Interaction)activatedInteraction).GetPostInteraction().GetValence());
+                    int index = anticipations.IndexOf(proposition);
+                    if (index < 0)
+                        anticipations.Add(proposition);
+                    else
+                        ((Anticipation)anticipations[index]).AddProclivity(((Interaction)activatedInteraction).GetWeight() * ((Interaction)activatedInteraction).GetPostInteraction().GetValence());
+                }
+            }
+            return anticipations;
+        }
+
+        protected Interaction SelectInteraction(List<Anticipation> anticipations)
+        {
+            anticipations.Sort();
+            Interaction intendedInteraction;
+
+            if (anticipations.Count > 0)
+            {
+                Interaction affordedInteraction = anticipations[0].GetInteraction();
+                if (affordedInteraction.GetValence() >= 0)
+                    intendedInteraction = affordedInteraction;
+                else
+                    intendedInteraction = (Interaction)GetOtherInteraction(affordedInteraction);
+            }
+            else
+                intendedInteraction = GetOtherInteraction(null);
+            return (Interaction)intendedInteraction;
+        }
+        /// <summary>
+        /// Get the list of activated interactions. An activated interaction is a composite interaction whose preInteraction matches the enactedInteraction.
+        /// </summary>
+        /// <returns>The list of anticipations</returns>
+        public List<Interaction> GetActivatedInteractions()
+        {
+            List<Interaction> activatedInteractions = new List<Interaction>();
+            if (GetEnactedInteraction() != null)
+                foreach (Interaction activatedInteraction in INTERACTIONS.Values)
+                    if (((Interaction)activatedInteraction).GetPreInteraction() == GetEnactedInteraction())
+                        activatedInteractions.Add((Interaction)activatedInteraction);
+            return activatedInteractions;
+        }
+
+        protected Interaction GetInteraction(String label)
+        {
+            return (Interaction)INTERACTIONS[label];
+        }
+        /// <summary>
+        /// Gets the other interaction.
+        /// </summary>
+        /// <param name="interaction">The interaction.</param>
+        /// <returns></returns>
+        public Interaction GetOtherInteraction(Interaction interaction)
+        {
+            Interaction otherInteraction = (Interaction)INTERACTIONS.Values.ToArray()[0];
+            if (interaction != null)
+                foreach (Interaction e in INTERACTIONS.Values)
+                {
+                    if (e.GetExperience() != null && e.GetExperience() != interaction.GetExperience())
+                    {
+                        otherInteraction = e;
+                        break;
+                    }
+                }
+            return otherInteraction;
+        }
+
+        protected void SetEnactedInteraction(Interaction enactedInteraction)
+        {
+            this.enactedInteraction = enactedInteraction;
+        }
+        protected Interaction GetEnactedInteraction()
+        {
+            return enactedInteraction;
+        }
+
+        protected List<Anticipation> GetDefaultAnticipations()
+        {
+            List<Anticipation> anticipations = new List<Anticipation>();
+            foreach (Experiment experience in EXPERIENCES.Values)
+            {
+                Anticipation anticipation = new Anticipation(experience, 0);
+                anticipations.Add(anticipation);
+            }
+            return anticipations;
+        }
+
+        public Experiment SelectExperience(List<Anticipation> anticipations)
+        {
+            // The list of anticipations is never empty because all the experiences are proposed by default with a proclivity of 0
+            anticipations.Sort();
+            foreach (Anticipation anticipation in anticipations)
+                Console.WriteLine("propose " + anticipation.ToString());
+
+            Anticipation selectedAnticipation = (Anticipation)anticipations[0];
+            return selectedAnticipation.GetExperience();
+        }
+
+        /**
+         * Environment030
+         * Results in R1 when the current experience equals the previous experience
+         * and in R2 when the current experience differs from the previous experience.
+         */
+        protected Result ReturnResult030(Experiment experience)
+        {
+            Result result = null;
+            if (GetPreviousExperience() == experience)
+                result = CreateOrGetResult(LABEL_R1);
+            else
+                result = CreateOrGetResult(LABEL_R2);
+            SetPreviousExperience(experience);
+
+            return result;
+        }
+
+        #region Old version of interaction
         /// <summary>
         /// Create an interaction as a tuple <experience, result>.
         /// </summary>
@@ -126,35 +311,35 @@ namespace Cartheur.Ideal.Mooc.Existence
                 INTERACTIONS.Add(label, CreateInteraction(label));
             return INTERACTIONS.ContainsKey(label) ? INTERACTIONS[label] : null;
         }
-        /// <summary>
-        /// Creates the interaction.
-        /// </summary>
-        /// <param name="label">The label.</param>
-        /// <returns></returns>
-        protected Interaction CreateInteraction(string label)
-        {
-            return new Interaction(label);
-        }
+        ///// <summary>
+        ///// Creates the interaction.
+        ///// </summary>
+        ///// <param name="label">The label.</param>
+        ///// <returns></returns>
+        //protected Interaction CreateInteraction(string label)
+        //{
+        //    return new Interaction(label);
+        //}
 
-        /// <summary>
-        /// Finds an interaction from its label
-        /// </summary>
-        /// <param name="label">The label of this interaction.</param>
-        /// <returns>The interaction.</returns>
-        protected Interaction GetInteraction(string label)
-        {
-            return INTERACTIONS.ContainsKey(label) ? INTERACTIONS[label] : null;
-        }
-        /// <summary>
-        /// Gets the interaction.
-        /// </summary>
-        /// <param name="label">The label.</param>
-        /// <param name="check">Check this</param>
-        /// <returns></returns>
-        protected Interaction GetInteraction(string label, bool check)
-        {
-            return (Interaction)INTERACTIONS[label];
-        }
+        ///// <summary>
+        ///// Finds an interaction from its label
+        ///// </summary>
+        ///// <param name="label">The label of this interaction.</param>
+        ///// <returns>The interaction.</returns>
+        //protected Interaction GetInteraction(string label)
+        //{
+        //    return INTERACTIONS.ContainsKey(label) ? INTERACTIONS[label] : null;
+        //}
+        ///// <summary>
+        ///// Gets the interaction.
+        ///// </summary>
+        ///// <param name="label">The label.</param>
+        ///// <param name="check">Check this</param>
+        ///// <returns></returns>
+        //protected Interaction GetInteraction(string label, bool check)
+        //{
+        //    return (Interaction)INTERACTIONS[label];
+        //}
 
         /// <summary>
         /// Create an interaction as a tuple <experience, result>.
@@ -291,6 +476,47 @@ namespace Cartheur.Ideal.Mooc.Existence
                 return CreateOrGetResult(LABEL_R1);
             else
                 return CreateOrGetResult(LABEL_R2);
+        }
+
+        /**
+	 * Environment031
+	 * Before time T1 and after time T2: E1 results in R1; E2 results in R2
+	 * between time T1 and time T2: E1 results R2; E2results in R1.
+	 */
+        protected int T1 = 8;
+        protected int T2 = 15;
+        private int clock = 0;
+        protected int GetClock()
+        {
+            return clock;
+        }
+        protected void IncClock()
+        {
+            clock++;
+        }
+
+        public Result ReturnResult031(Experiment experience)
+        {
+
+            Result result = null;
+
+            IncClock();
+
+            if (GetClock() <= T1 || GetClock() > T2)
+            {
+                if (experience.Equals(AddOrGetExperience(LABEL_E1)))
+                    result = CreateOrGetResult(LABEL_R1);
+                else
+                    result = CreateOrGetResult(LABEL_R2);
+            }
+            else
+            {
+                if (experience.Equals(AddOrGetExperience(LABEL_E1)))
+                    result = CreateOrGetResult(LABEL_R2);
+                else
+                    result = CreateOrGetResult(LABEL_R1);
+            }
+            return result;
         }
     }
 }

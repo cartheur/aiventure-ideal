@@ -7,11 +7,11 @@ namespace Cartheur.Ideal.Mooc
     {
         static void Main()
         {
-            Console.WriteLine("Hello, Agent World!");
+            Console.WriteLine("Hello, David...Hello, Chris");
             // Change this line to instantiate another existence.
-            IExistence existence = new Existence010(); // <-- 020 integrated
+            IExistence existence = new Existence010(); // <-- 020, 030 integrated 031 (problem)
 
-            //Existence existence = new Existence030();
+
             //Existence existence = new Existence031();
             //Existence existence = new Existence032();
             //Existence existence = new Existence040();
@@ -19,7 +19,7 @@ namespace Cartheur.Ideal.Mooc
             //Existence existence = new Existence051();
 
             // Change this line to adjust the number of cycles of the loop.
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 20; i++)
             {
                 string stepTrace = existence.Step();
                 Console.WriteLine(i + ": " + stepTrace);

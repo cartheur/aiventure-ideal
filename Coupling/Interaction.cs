@@ -1,4 +1,5 @@
 ﻿using Cartheur.Ideal.Mooc.Interfaces;
+using Microsoft.VisualBasic;
 
 namespace Cartheur.Ideal.Mooc.Coupling
 {
@@ -11,6 +12,11 @@ namespace Cartheur.Ideal.Mooc.Coupling
         protected Experiment experience;
         protected Result result;
         private int valence;
+        // Kantian expressives
+        private Interaction preInteraction;
+        private Interaction postInteraction;
+        private int weight = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Interaction"/> class.
         /// </summary>
@@ -82,5 +88,48 @@ namespace Cartheur.Ideal.Mooc.Coupling
             return experience.GetLabel() + result.GetLabel() + "," + GetValence();
         }
 
+
+        #region  Stuff
+
+        public Interaction GetPreInteraction()
+        {
+            return preInteraction;
+        }
+
+        public void SetPreInteraction(Interaction preInteraction)
+        {
+            this.preInteraction = preInteraction;
+        }
+
+        public Interaction GetPostInteraction()
+        {
+            return (Interaction)postInteraction;
+        }
+
+        public void SetPostInteraction(Interaction postInteraction)
+        {
+            this.postInteraction = postInteraction;
+        }
+
+        public bool IsPrimitive()
+        {
+            return this.GetPreInteraction() == null;
+        }
+        #endregion
+
+        public int GetWeight()
+        {
+            return this.weight;
+        }
+
+        public void IncrementWeight()
+        {
+            this.weight++;
+        }
+
+        public new string ToString()
+        {
+            return this.GetLabel() + " valence " + this.GetValence() + " weight " + this.weight;
+        }
     }
 }
