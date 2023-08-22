@@ -5,18 +5,20 @@
     /// </summary>
     public class Experiment
     {
-
-        /**
-         * The experience's label.
-         */
-        private string label;
-
+        private readonly string label;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Experiment"/> class.
+        /// </summary>
+        /// <param name="label">The label.</param>
         public Experiment(string label)
         {
             this.label = label;
         }
-
-        public string getLabel()
+        /// <summary>
+        /// Gets the label associated with the <see cref="Experiment"/>.
+        /// </summary>
+        /// <returns></returns>
+        public string GetLabel()
         {
             return label;
         }
