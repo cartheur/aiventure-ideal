@@ -1,5 +1,5 @@
 ﻿using Cartheur.Ideal.Mooc.Coupling;
-using Cartheur.Ideal.Mooc.Coupling.Interaction;
+using Cartheur.Ideal.Mooc.Interfaces;
 
 namespace Cartheur.Ideal.Mooc.Existence
 {
@@ -29,20 +29,36 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// </summary>
         public Existence010()
         {
-            InitExistence();
+            InitializeExistence();
         }
 
-        protected void InitExistence()
+        protected void InitializeExistence()
         {
+            // 010-level features
+            //Experiment e1 = AddOrGetExperience(LABEL_E1);
+            //AddOrGetExperience(LABEL_E2);
+            //SetPreviousExperience(e1);
+            // 020-level features
             Experiment e1 = AddOrGetExperience(LABEL_E1);
-            AddOrGetExperience(LABEL_E2);
+            Experiment e2 = AddOrGetExperience(LABEL_E2);
+            Result r1 = CreateOrGetResult(LABEL_R1);
+            Result r2 = CreateOrGetResult(LABEL_R2);
+            // Change the valence of interactions to change the agent's motivation.
+            AddOrGetPrimitiveInteraction(e1, r1, -1);
+            AddOrGetPrimitiveInteraction(e1, r2, 1);
+            AddOrGetPrimitiveInteraction(e2, r1, -1);
+            AddOrGetPrimitiveInteraction(e2, r2, 1);
             SetPreviousExperience(e1);
         }
 
-        //@Override
+        /// <summary>
+        /// Perform one step of a "stream of intelligence".
+        /// </summary>
+        /// <returns>
+        /// A string representing the "event of intelligence" that was performed.
+        /// </returns>
         public string Step()
         {
-
             Experiment experience = GetPreviousExperience();
             if (GetMood() == Mood.BORED)
             {
@@ -50,9 +66,19 @@ namespace Cartheur.Ideal.Mooc.Existence
                 SetSelfSatisfactionCounter(0);
             }
 
+            if (GetMood() == Mood.PAINED)
+                experience = GetOtherExperience(experience);
+
             Result anticipatedResult = Predict(experience);
 
             Result result = ReturnResult010(experience);
+
+            Interaction enactedInteraction = (Interaction)AddOrGetPrimitiveInteraction(experience, result);
+
+            if (enactedInteraction.GetValence() >= 0)
+                SetMood(Mood.PLEASED);
+            else
+                SetMood(Mood.PAINED);
 
             AddOrGetPrimitiveInteraction(experience, result);
 
@@ -71,9 +97,10 @@ namespace Cartheur.Ideal.Mooc.Existence
 
             SetPreviousExperience(experience);
 
-            return experience.getLabel() + result.getLabel() + " " + GetMood();
+            return experience.GetLabel() + result.GetLabel() + GetMood();
         }
 
+        #region Interaction
         /// <summary>
         /// Create an interaction as a tuple <experience, result>.
         /// </summary>
@@ -82,7 +109,7 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// <returns>The created interaction</returns>
         protected Interaction AddOrGetPrimitiveInteraction(Experiment experience, Result result)
         {
-            Interaction interaction = AddOrGetInteraction(experience.getLabel() + result.getLabel());
+            Interaction interaction = AddOrGetInteraction(experience.GetLabel() + result.GetLabel());
             interaction.SetExperience(experience);
             interaction.SetResult(result);
             return interaction;
@@ -93,16 +120,20 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// </summary>
         /// <param name="label">The label of this interaction.</param>
         /// <returns>The interaction.</returns>
-        protected Interaction? AddOrGetInteraction(string label)
+        protected Interaction AddOrGetInteraction(string label)
         {
             if (!INTERACTIONS.ContainsKey(label))
                 INTERACTIONS.Add(label, CreateInteraction(label));
             return INTERACTIONS.ContainsKey(label) ? INTERACTIONS[label] : null;
         }
-
-        protected Interaction010 CreateInteraction(string label)
+        /// <summary>
+        /// Creates the interaction.
+        /// </summary>
+        /// <param name="label">The label.</param>
+        /// <returns></returns>
+        protected Interaction CreateInteraction(string label)
         {
-            return new Interaction010(label);
+            return new Interaction(label);
         }
 
         /// <summary>
@@ -110,10 +141,44 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// </summary>
         /// <param name="label">The label of this interaction.</param>
         /// <returns>The interaction.</returns>
-        protected Interaction? GetInteraction(string label)
+        protected Interaction GetInteraction(string label)
         {
             return INTERACTIONS.ContainsKey(label) ? INTERACTIONS[label] : null;
         }
+        /// <summary>
+        /// Gets the interaction.
+        /// </summary>
+        /// <param name="label">The label.</param>
+        /// <param name="check">Check this</param>
+        /// <returns></returns>
+        protected Interaction GetInteraction(string label, bool check)
+        {
+            return (Interaction)INTERACTIONS[label];
+        }
+
+        /// <summary>
+        /// Create an interaction as a tuple <experience, result>.
+        /// </summary>
+        /// <param name="experience">The experience.</param>
+        /// <param name="result">The result.</param>
+        /// <param name="valence">The interaction's valence.</param>
+        /// <returns>The created interaction</returns>
+        protected Interaction AddOrGetPrimitiveInteraction(Experiment experience, Result result, int valence)
+        {
+            string label = experience.GetLabel() + result.GetLabel();
+            if (!INTERACTIONS.ContainsKey(label))
+            {
+                Interaction interactions = CreateInteraction(label);
+                interactions.SetExperience(experience);
+                interactions.SetResult(result);
+                interactions.SetValence(valence);
+                INTERACTIONS.Add(label, interactions);
+            }
+            Interaction interaction = (Interaction)INTERACTIONS[label];
+            return interaction;
+        }
+
+        #endregion
 
         /// <summary>
         /// Finds an interaction from its experience.
@@ -140,7 +205,7 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// </summary>
         /// <param name="label">The experience's label</param>
         /// <returns>The experience.</returns>
-        protected Experiment? AddOrGetExperience(string label)
+        protected Experiment AddOrGetExperience(string label)
         {
             if (!EXPERIENCES.ContainsKey(label))
                 EXPERIENCES.Add(label, CreateExperience(label));
