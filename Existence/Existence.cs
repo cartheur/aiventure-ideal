@@ -6,33 +6,37 @@ using Cartheur.Ideal.Mooc.Tracer;
 
 namespace Cartheur.Ideal.Mooc
 {
+    public enum Mood { SATISFIED, FRUSTRATED, BORED, PAINED, PLEASED };
+
     /// <summary>
     /// An Existence010 simulates a "stream of intelligence" made of a succession of Experiences and Results. The Existence010 is SELF-SATISFIED when the Result corresponds to the Result it expected, and FRUSTRATED otherwise. Additionally, the Existence0 is BORED when it has been SELF-SATISFIED for too long, which causes it to try another Experience. An Existence1 is still a single entity rather than being split into an explicit Agent and Environment.
     /// </summary>
     /// <seealso cref="IExistence" />
     public class Existence : IExistence
     {
-        private Interaction previousSuperInteraction;
-        private Interaction lastSuperInteraction;
-        private Interaction currentSuperInteraction;
-
         public string LABEL_E1 = "e1";
         public string LABEL_E2 = "e2";
         public string LABEL_R1 = "r1";
         public string LABEL_R2 = "r2";
-        public enum Mood { SATISFIED, FRUSTRATED, BORED, PAINED, PLEASED };
+
+        protected int T1 = 8;
+        protected int T2 = 15;
+        private int clock = 0;
+        protected int BOREDOM = 4;
+        private int selfSatisfactionCounter = 0;
+
+        private Mood mood;
+        private Experiment previousExperience;
+
+        private Interaction previousSuperInteraction;
+        private Interaction lastSuperInteraction;
+        private Interaction currentSuperInteraction;
+        private Interaction enactedInteraction;
+        private Interaction affordedInteraction;
 
         public Dictionary<string, Experiment> Experiences = new Dictionary<string, Experiment>();
         protected Dictionary<string, Result> Results = new Dictionary<string, Result>();
         protected Dictionary<string, Interaction> Interactions = new Dictionary<string, Interaction>();
-
-        protected int BOREDOM = 4;
-
-        private Mood mood;
-        private int selfSatisfactionCounter = 0;
-        private Experiment previousExperience;
-        private Interaction enactedInteraction;
-        Interaction affordedInteraction;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Existence"/> class.
@@ -102,7 +106,7 @@ namespace Cartheur.Ideal.Mooc
             if (enactedInteraction == intendedInteraction)
             {
                 SetMood(Mood.SATISFIED);
-                IncSelfSatisfactionCounter();
+                IncrementSelfSatisfactionCounter();
             }
             else
             {
@@ -121,10 +125,10 @@ namespace Cartheur.Ideal.Mooc
             return "" + GetMood();
 
         }
-
-        /**
-	 * Learn the composite interaction from the previous enacted interaction and the current enacted interaction
-	 */
+        /// <summary>
+        /// Learn the composite interaction from the previous enacted interaction and the current enacted interaction.
+        /// </summary>
+        /// <param name="enactedInteraction">The enacted interaction.</param>
         public void LearnCompositeInteraction(Interaction enactedInteraction)
         {
             Interaction preInteraction = GetEnactedInteraction();
@@ -136,12 +140,12 @@ namespace Cartheur.Ideal.Mooc
             }
         }
 
-        /**
-         * Records a composite interaction in memory
-         * @param preInteraction: The composite interaction's pre-interaction
-         * @param postInteraction: The composite interaction's post-interaction
-         * @return the learned composite interaction
-         */
+        /// <summary>
+        /// Records a composite interaction in memory.
+        /// </summary>
+        /// <param name="preInteraction">The composite interaction's pre-interaction</param>
+        /// <param name="postInteraction">The composite interaction's post-interaction</param>
+        /// <returns>The learned composite interaction.</returns>
         public Interaction AddOrGetCompositeInteraction(Interaction preInteraction, Interaction postInteraction)
         {
             int valence = preInteraction.GetValence() + postInteraction.GetValence();
@@ -153,7 +157,7 @@ namespace Cartheur.Ideal.Mooc
             return interaction;
         }
 
-        protected Interaction CreateInteraction(String label)
+        protected static Interaction CreateInteraction(String label)
         {
             return new Interaction(label);
         }
@@ -353,24 +357,7 @@ namespace Cartheur.Ideal.Mooc
 
             Anticipation selectedAnticipation = (Anticipation)anticipations[0];
             return selectedAnticipation.GetExperience();
-        }
-
-        /**
-         * Environment030
-         * Results in R1 when the current experience equals the previous experience
-         * and in R2 when the current experience differs from the previous experience.
-         */
-        protected Result ReturnResult030(Experiment experience)
-        {
-            Result result = null;
-            if (GetPreviousExperience() == experience)
-                result = CreateOrGetResult(LABEL_R1);
-            else
-                result = CreateOrGetResult(LABEL_R2);
-            SetPreviousExperience(experience);
-
-            return result;
-        }
+        }      
 
         /// <summary>
         /// Create an interaction as a tuple <experience, result>.
@@ -624,11 +611,20 @@ namespace Cartheur.Ideal.Mooc
         {
             this.selfSatisfactionCounter = selfSatisfactionCounter;
         }
-        public void IncSelfSatisfactionCounter()
+        public void IncrementSelfSatisfactionCounter()
         {
             selfSatisfactionCounter++;
         }
+        protected int GetClock()
+        {
+            return clock;
+        }
+        protected void IncrementClock()
+        {
+            clock++;
+        }
 
+        #region Results to be returned
         /// <summary>
         /// The Environment010 
         /// * E1 results in R1.E2 results in R2.
@@ -642,30 +638,23 @@ namespace Cartheur.Ideal.Mooc
             else
                 return CreateOrGetResult(LABEL_R2);
         }
-
-        /**
-	 * Environment031
-	 * Before time T1 and after time T2: E1 results in R1; E2 results in R2
-	 * between time T1 and time T2: E1 results R2; E2results in R1.
-	 */
-        protected int T1 = 8;
-        protected int T2 = 15;
-        private int clock = 0;
-        protected int GetClock()
+        protected Result ReturnResult030(Experiment experience)
         {
-            return clock;
-        }
-        protected void IncClock()
-        {
-            clock++;
-        }
+            Result result = null;
+            if (GetPreviousExperience() == experience)
+                result = CreateOrGetResult(LABEL_R1);
+            else
+                result = CreateOrGetResult(LABEL_R2);
+            SetPreviousExperience(experience);
 
+            return result;
+        }
         public Result ReturnResult031(Experiment experience)
         {
 
             Result result = null;
 
-            IncClock();
+            IncrementClock();
 
             if (GetClock() <= T1 || GetClock() > T2)
             {
@@ -711,5 +700,6 @@ namespace Cartheur.Ideal.Mooc
 
             return result;
         }
+        #endregion
     }
 }
