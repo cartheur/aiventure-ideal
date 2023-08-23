@@ -4,7 +4,7 @@ Implementation of DEvelopmentAl Learning (IDEAL) Course
 
 ## Introduction to the embodied paradigm
 
-The main message that we want to convey is:
+The main message that to convey is:
 
 Do not consider the agent's input data as the agent's perception of its environment.
 
