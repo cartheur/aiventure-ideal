@@ -71,7 +71,7 @@ In his theory of a [constructivist](https://en.wikipedia.org/wiki/Constructivism
 
 The sensorimotor paradigm allows implementing a type of motivation called interactional motivation. Using the embodied model introduced on Page 12, Figure 22 compares traditional reinforcement learning (left) with interactional motivation (right).
 
-![Fig.12](/media/022-1.png "Figure 22") 
+![Fig.22](/media/022-1.png "Figure 22") 
 
 In reinforcement learning (Figure 22/left), the agent receives a reward r that specifies desirable goals to reach. In the case of simulated environments, the designer programs the reward function r(s) as a function of the environment's state. In the case of robots, a "reward button" is pressed either automatically when the robot reaches the goal, or manually by the experimenter to train the robot to reach the goal. The agent's policy is designed to choose actions based on their estimated utility for getting the reward. As a result, to an observer of the agent's behavior, the agent appears motivated to reach the goal defined by the experimenter. For example, to model an agent that seeks food, the designer assigns a positive reward to states of the world in which the agent reaches food.
 
@@ -117,6 +117,118 @@ The key concept that we want to convey is the imperative of [epistemology](https
 
 Cognitive agents must discover, learn, and exploit regularities of interaction.
 
-Regularities of interaction (in short, regularities) are patterns of interaction that occur consistently. Regularities depend on the coupling between the agent and the environment. That is, they depend both on the structure of the environment, and on the possibilities of interaction that the agent has at its disposal. At least since [Immanuel Kant](https://en.wikipedia.org/wiki/Immanuel_Kant) and the superb refinements by [Arthur Schoepenhauer](https://en.wikipedia.org/wiki/Arthur_Schopenhauer), philosophers have widely agreed on the fact that cognitive systems can never know "the world as such", but only the world as it appears to them through sensorimotor interactions. For example, in some situations, if you spread your arm repeatedly, and if you consistently experience the same sensorimotor pattern, you may infer that there is something constant out there that always makes this same sensorimotor pattern possible. Note that regularities can be experienced through arbitrarily complex instruments, which may range from a stick in your hand to complex experimental settings such as those used by physicists to interact with something out there known as the Higgs boson. These philosophical ideas translate into AI when we acknowledge the fact that knowledge is constructed from regularities of interactions rather than recorded from input data. Designing a system that would construct complete knowledge of the world out there and exploit this model for the better is a part of AI's long-term objective.
+Regularities of interaction (in short, regularities) are patterns of interaction that occur consistently. Regularities depend on the coupling between the agent and the environment. That is, they depend both on the structure of the environment, and on the possibilities of interaction that the agent has at its disposal. At least since [Immanuel Kant](https://en.wikipedia.org/wiki/Immanuel_Kant) and the superb refinements by [Arthur Schopenhauer](https://en.wikipedia.org/wiki/Arthur_Schopenhauer), philosophers have widely agreed on the fact that cognitive systems can never know "the world as such", but only the world as it appears to them through sensorimotor interactions. For example, in some situations, if you spread your arm repeatedly, and if you consistently experience the same sensorimotor pattern, you may infer that there is something constant out there that always makes this same sensorimotor pattern possible. Note that regularities can be experienced through arbitrarily complex instruments, which may range from a stick in your hand to complex experimental settings such as those used by physicists to interact with something out there known as the Higgs boson. These philosophical ideas translate into AI when we acknowledge the fact that knowledge is constructed from regularities of interactions rather than recorded from input data. Designing a system that would construct complete knowledge of the world out there and exploit this model for the better is a part of AI's long-term objective.
 
 To take this problem gradually, this part begins with implementing an agent that can detect simple sequential regularities and exploit them to satisfy its rudimentary motivational system.
+
+## Learning regularities of interaction
+
+Figure 32 presents the principles of a rudimentary system that learns and exploits two-step regularities of interaction.
+
+![Fig.32](/media/032-1.png "Figure 32")
+
+On time step t, the agent enacts the interaction it = ⟨et,rt⟩. Enacting it means experimenting et and receiving a result rt (Page 21). The agent records the two-step sequence ⟨it-1,it⟩ made by the previously enacted interaction it-1 and of it. The sequence of interactions ⟨it-1,it⟩ is called a composite interaction. it-1 is called ⟨it-1,it⟩'s pre-interaction, and it is called ⟨it-1,it⟩'s post-interaction. From now on, low-level interactions i = ⟨e,r⟩ will be called primitive interactions to differentiate them from composite interactions.
+
+The enacted primitive interaction it activates previously learned composite interactions when it matches their pre-interaction. For example, if it = a and if the composite interaction ⟨a,b⟩ has been learned before time t, then the composite interaction ⟨a,b⟩ is activated, meaning it is recalled from memory. Activated composite interactions propose their post-interaction's experiment, in this case: b's experiment. If the sequence ⟨a,b⟩ corresponds to a regularity of interaction, then it is probable that the sequence ⟨a,b⟩ can be enacted again. Therefore, the agent can anticipate that performing b's experiment will likely produce b's result. The agent can thus base its choice of the next experiment on this anticipation.
+
+Note that the enacted primitive interaction it may activate more than one composite interaction, each of them proposing different experiments. We create an interactionally motivated agent by implementing a decision mechanism that uses the agent's capacity of anticipation to choose experiments that will likely result in interactions that have a positive valence, and avoid experiments that will likely result in interactions that have a negative valence.
+
+## Algorithm for learning regularities of interaction
+
+Here is a rudimentary interactionally motivated algorithm that enables the agent to learn and exploit two-step regularities of interaction. Table 33-1 presents its main loop, and Tables 33-2 and 33-3 present subroutines.
+
+In Table 33-1, we chose a set of valences and a particular environment to demonstrate this learning mechanism: this agent is pleased when it receives result r2, but it must learn that the environment returns r2 only if it alternates experiments e1 and e2 every second cycle. Your programming activities will consist of experimenting with other valences and other environments.
+
+Table 33-1: Main loop of an interactionally motivated algorithm that learns two-step sequences of interaction.
+```
+01  createPrimitiveInteraction(e1, r1, -1)
+02  createPrimitiveInteraction(e1, r2, 1)
+03  createPrimitiveInteraction(e2, r1, -1)
+04  createPrimitiveInteraction(e2, r2, 1)
+05  while()
+06     contextInteraction = enactedInteraction
+07     anticipations = anticipate(enactedInteraction)
+08     experiment = selectExperiment(anticipations)
+
+09     if (experiment = previousExperiment)
+10        result = r1
+11     else
+12        result = r2
+13     previousExperiment = experiment
+
+14     enactedInteraction = getInteraction(experiment, result)
+15     if (enactedInteraction.valence ≥ 0)
+16        mood = PLEASED
+17     else
+18        mood = PAINED
+19     learnCompositeInteraction(contextInteraction, enactedInteraction)
+
+```
+
+Table 33-1, lines 01 to 04 initialize the primitive interactions (similar to Page 23) to specify the agent's preferences. In this particular configuration, interactions whose result is r1 have a negative valence, and interactions whose result is r2 have a positive valence. 06: the previously enacted interaction is memorized as the context interaction. 07: computes anticipations in the context of the previous enacted interaction. 08: selects an experiment from the anticipations.
+
+Lines 09 to 13 implement the environment. This new environment was designed to demonstrate the benefit of learning two-step regularities of interaction. If the experiment equals the previous experiment then result is r1, otherwise the result is r2.
+
+Lines 14 to 18: the enacted interaction is retrieved from memory; and the agent is pleased if its valence is positive (similar to Page 23). Line 19: the agent records the composite interaction as a tuple ‹contextInteraction, enactedInteraction› in memory.
+
+Table 33-2 presents a simple version of the learnCompositeInteraction(), anticipate(), and selectExperiment() functions.
+
+Table 33-2: Pseudocode of a simple version.
+```
+01   function learnCompositeInteraction(contextInteraction, enactedInteraction)
+02      compositeInteraction = create new tuple(contextInteraction, enactedInteraction)
+03      if compositeInteraction already in the list of known interactions 
+04         do nothing
+05      else
+06         add compositeInteraction to the list of known interactions
+
+10   function anticipate(enactedInteraction)
+11      for each interaction in the list of known interactions
+12          if interaction.preInteraction = enactedInteraction
+13             create new anticipation(interaction.postInteraction)
+14      return the list of anticipations
+
+20   function selectExperiment(anticipations)
+21      sort the list anticipations by decreasing valence of their proposed interaction.
+22      if anticipation[0].interaction.valence ≥ 0
+23         return anticipation[0].interaction.experiment
+24      else
+25         return another experiment than anticipation[0].interaction.experiment
+
+```
+
+The anticipate() function checks for known composite interactions whose pre-interactions match the last enacted primitive interaction; we call these the activated composite interactions. A new object, anticipation, is created for each activated composite interaction. The activated composite interaction's post-interaction is associated with this anticipation as the anticipation's proposed interaction. The selectExperiment() function sorts the list of anticipations by decreasing valence of their proposed interaction. Then, it takes the fist anticipation (index [0]), which has the highest valence in the list. If this valence is positive, then the agent wants to re-enact this proposed interaction, leading to the agent choosing this proposed interaction's experiment.
+
+This solution works in a very simple environment that generates no competing anticipations. However, for environments that may generate competing anticipations, we want the agent to be able to balance competing anticipations based on their probabilities of realization. We may have an environment that, in a given context, makes all the four interactions likely to happen but with different probabilities. For example, in the context in which e1r1 was enacted, both e1 and e2 may result sometimes in r1 and sometimes in r2. But, e1 is more likely to result in r2 than e2. To handle this kind of environment, we associate a weight to composite interactions, as shown in Table 33-3.
+
+Table 33-3: Pseudocode for weighted anticipations.
+```
+01   function learnCompositeInteraction(contextInteraction, enactedInteraction)
+02      compositeInteraction = create new tuple(contextInteraction, enactedInteraction)
+03      if compositeInteraction already in the list of known interactions 
+04         increment compositeInteraction's weight
+05      else
+06         add compositeInteraction to the list of known interactions with a weight of 1
+
+10   function anticipate(enactedInteraction)
+11      for each interaction in the list of known interactions
+12         if interaction.preInteraction = enactedInteraction
+13            proposedExperiment = interaction.postInteraction.experiment
+14            proclivity = interaction.weight * interaction.postInteraction.valence
+15            if an anticipation already exists for proposedExperience 
+16               add proclivity to this anticipation's proclivity
+17            else
+18               create new anticipation(proposedExperiment) with proclivity proclivity
+19      return the list of anticipations
+
+20   function selectExperiment(anticipations)
+21      sort the list anticipations by decreasing proclivity.
+22      if anticipation[0].proclivity ≥ 0
+23         return anticipation[0].experiment
+24      else
+25         return another experiment than anticipation[0].experiment
+
+```
+
+Now, the learnCompositeInteraction() function either records or reinforces composite interactions. The anticipate() function generates an anticipation for each proposed experiment. Anticipations have a proclivity value computed from the weight of the proposing activated composite interaction multiplied by the valence of the proposed interaction. As a result, the anticipations that are the most likely to result in the primitive interaction that have the highest valence receive the highest proclivity. In the example above, in the context when e1r1 has been enacted, the agent learns to choose e1 because it will more likely result in a positive interaction than e2.
+
