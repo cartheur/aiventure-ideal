@@ -357,8 +357,20 @@ namespace Cartheur.Ideal.Mooc
 
             Anticipation selectedAnticipation = (Anticipation)anticipations[0];
             return selectedAnticipation.GetExperience();
-        }      
+        }
 
+        #region Interaction objects
+        /// <summary>
+        /// Records an interaction in memory.
+        /// </summary>
+        /// <param name="label">The label of this interaction.</param>
+        /// <returns>The interaction.</returns>
+        protected Interaction AddOrGetInteraction(string label)
+        {
+            if (!Interactions.ContainsKey(label))
+                Interactions.Add(label, CreateInteraction(label));
+            return Interactions.ContainsKey(label) ? Interactions[label] : null;
+        }
         /// <summary>
         /// Create an interaction as a tuple <experience, result>.
         /// </summary>
@@ -392,48 +404,6 @@ namespace Cartheur.Ideal.Mooc
 
             return interaction;
         }
-
-        /// <summary>
-        /// Records an interaction in memory.
-        /// </summary>
-        /// <param name="label">The label of this interaction.</param>
-        /// <returns>The interaction.</returns>
-        protected Interaction AddOrGetInteraction(string label)
-        {
-            if (!Interactions.ContainsKey(label))
-                Interactions.Add(label, CreateInteraction(label));
-            return Interactions.ContainsKey(label) ? Interactions[label] : null;
-        }
-        ///// <summary>
-        ///// Creates the interaction.
-        ///// </summary>
-        ///// <param name="label">The label.</param>
-        ///// <returns></returns>
-        //protected Interaction CreateInteraction(string label)
-        //{
-        //    return new Interaction(label);
-        //}
-
-        ///// <summary>
-        ///// Finds an interaction from its label
-        ///// </summary>
-        ///// <param name="label">The label of this interaction.</param>
-        ///// <returns>The interaction.</returns>
-        //protected Interaction GetInteraction(string label)
-        //{
-        //    return INTERACTIONS.ContainsKey(label) ? INTERACTIONS[label] : null;
-        //}
-        ///// <summary>
-        ///// Gets the interaction.
-        ///// </summary>
-        ///// <param name="label">The label.</param>
-        ///// <param name="check">Check this</param>
-        ///// <returns></returns>
-        //protected Interaction GetInteraction(string label, bool check)
-        //{
-        //    return (Interaction)INTERACTIONS[label];
-        //}
-
         /// <summary>
         /// Create an interaction as a tuple <experience, result>.
         /// </summary>
@@ -456,26 +426,65 @@ namespace Cartheur.Ideal.Mooc
             return interaction;
         }
 
-        /// <summary>
-        /// Finds an interaction from its experience.
-        /// </summary>
-        /// <param name="experience">The experience.</param>
-        /// <returns>The interaction.</returns>
-        protected Result Predict(Experiment experience)
+        public Interaction Enact(Interaction intendedInteraction)
         {
-            Interaction interaction = null;
-            Result anticipatedResult = null;
 
-            foreach (Interaction i in Interactions.Values)
-                if (i.GetExperience().Equals(experience))
-                    interaction = i;
+            if (intendedInteraction.IsPrimitive())
+                return EnactPrimitiveIntearction(intendedInteraction);
+            else
+            {
+                // Enact the pre-interaction
+                Interaction enactedPreInteraction = Enact(intendedInteraction.GetPreInteraction());
+                if (!enactedPreInteraction.Equals(intendedInteraction.GetPreInteraction()))
+                    // if the preInteraction failed then the enaction of the intendedInteraction is interrupted here.
+                    return enactedPreInteraction;
+                else
+                {
+                    // Enact the post-interaction
+                    Interaction enactedPostInteraction = Enact(intendedInteraction.GetPostInteraction());
+                    return (Interaction)AddOrGetCompositeInteraction(enactedPreInteraction, enactedPostInteraction);
+                }
+            }
+        }      
 
-            if (interaction != null)
-                anticipatedResult = interaction.GetResult();
-
-            return anticipatedResult;
+        /// <summary>
+        /// Implements the cognitive coupling between the agent and the environment.
+        /// </summary>
+        /// <param name="intendedPrimitiveInteraction">The intended primitive interaction to try to enact against the environment.</param>
+        /// <returns>The actually enacted primitive interaction.</returns>
+        public Interaction EnactPrimitiveIntearction(Interaction intendedPrimitiveInteraction)
+        {
+            Experiment experience = intendedPrimitiveInteraction.GetExperience();
+            /** Change the returnResult() to change the environment 
+             *  Change the valence of primitive interactions to obtain better behaviors */
+            //Result result = returnResult010(experience);
+            //Result result = returnResult030(experience);
+            //Result result = returnResult031(experience);
+            //Result result = ReturnResult040(experience);
+            Result result = ReturnResult041(experience);
+            return (Interaction)AddOrGetPrimitiveInteraction(experience, result);
+        }
+        public Interaction GetPreviousSuperInteraction()
+        {
+            return previousSuperInteraction;
         }
 
+        #endregion
+
+        #region Experiment objects
+
+        public Experiment AddOrGetAbstractExperience(Interaction interaction)
+        {
+            String label = interaction.GetLabel().Replace('e', 'E').Replace('r', 'R').Replace('>', '|');
+            if (!Experiences.ContainsKey(label))
+            {
+                Experiment abstractExperience = new Experiment(label);
+                abstractExperience.SetIntendedInteraction(interaction);
+                interaction.SetExperience(abstractExperience);
+                Experiences.Add(label, abstractExperience);
+            }
+            return (Experiment)Experiences[label];
+        }
         /// <summary>
         /// Creates a new experience from its label and stores it in memory.
         /// </summary>
@@ -512,77 +521,6 @@ namespace Cartheur.Ideal.Mooc
             return otherExperience;
         }
 
-        /// <summary>
-        /// Creates a new result from its label and stores it in memory.
-        /// </summary>
-        /// <param name="label">The result's label.</param>
-        /// <returns>The result.</returns>
-        protected Result CreateOrGetResult(string label)
-        {
-            if (!Results.ContainsKey(label))
-                Results[label] = new Result(label);
-            return Results[label];
-        }
-
-        #region Needs refactoring
-
-        public Interaction Enact(Interaction intendedInteraction)
-        {
-
-            if (intendedInteraction.IsPrimitive())
-                return EnactPrimitiveIntearction(intendedInteraction);
-            else
-            {
-                // Enact the pre-interaction
-                Interaction enactedPreInteraction = Enact(intendedInteraction.GetPreInteraction());
-                if (!enactedPreInteraction.Equals(intendedInteraction.GetPreInteraction()))
-                    // if the preInteraction failed then the enaction of the intendedInteraction is interrupted here.
-                    return enactedPreInteraction;
-                else
-                {
-                    // Enact the post-interaction
-                    Interaction enactedPostInteraction = Enact(intendedInteraction.GetPostInteraction());
-                    return (Interaction)AddOrGetCompositeInteraction(enactedPreInteraction, enactedPostInteraction);
-                }
-            }
-        }
-
-        public Experiment AddOrGetAbstractExperience(Interaction interaction)
-        {
-            String label = interaction.GetLabel().Replace('e', 'E').Replace('r', 'R').Replace('>', '|');
-            if (!Experiences.ContainsKey(label))
-            {
-                Experiment abstractExperience = new Experiment(label);
-                abstractExperience.SetIntendedInteraction(interaction);
-                interaction.SetExperience(abstractExperience);
-                Experiences.Add(label, abstractExperience);
-            }
-            return (Experiment)Experiences[label];
-        }
-
-        /**
-         * Implements the cognitive coupling between the agent and the environment
-         * @param intendedPrimitiveInteraction: The intended primitive interaction to try to enact against the environment
-         * @param The actually enacted primitive interaction.
-         */
-        public Interaction EnactPrimitiveIntearction(Interaction intendedPrimitiveInteraction)
-        {
-            Experiment experience = intendedPrimitiveInteraction.GetExperience();
-            /** Change the returnResult() to change the environment 
-             *  Change the valence of primitive interactions to obtain better behaviors */
-            //Result result = returnResult010(experience);
-            //Result result = returnResult030(experience);
-            //Result result = returnResult031(experience);
-            //Result result = ReturnResult040(experience);
-            Result result = ReturnResult041(experience);
-            return (Interaction)AddOrGetPrimitiveInteraction(experience, result);
-        }
-
-        public Interaction GetPreviousSuperInteraction()
-        {
-            return previousSuperInteraction;
-        }
-
         #endregion
 
         public Mood GetMood()
@@ -602,7 +540,6 @@ namespace Cartheur.Ideal.Mooc
         {
             this.previousExperience = previousExperience;
         }
-
         public int GetSelfSatisfactionCounter()
         {
             return selfSatisfactionCounter;
@@ -625,6 +562,36 @@ namespace Cartheur.Ideal.Mooc
         }
 
         #region Results to be returned
+        /// <summary>
+        /// Creates a new result from its label and stores it in memory.
+        /// </summary>
+        /// <param name="label">The result's label.</param>
+        /// <returns>The result.</returns>
+        protected Result CreateOrGetResult(string label)
+        {
+            if (!Results.ContainsKey(label))
+                Results[label] = new Result(label);
+            return Results[label];
+        }
+        /// <summary>
+        /// Finds an interaction from its experience.
+        /// </summary>
+        /// <param name="experience">The experience.</param>
+        /// <returns>The interaction.</returns>
+        protected Result Predict(Experiment experience)
+        {
+            Interaction interaction = null;
+            Result anticipatedResult = null;
+
+            foreach (Interaction i in Interactions.Values)
+                if (i.GetExperience().Equals(experience))
+                    interaction = i;
+
+            if (interaction != null)
+                anticipatedResult = interaction.GetResult();
+
+            return anticipatedResult;
+        }
         /// <summary>
         /// The Environment010 
         /// * E1 results in R1.E2 results in R2.
