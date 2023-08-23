@@ -238,25 +238,25 @@ Table 35 shows the trace that you should see in your console if you ran Project 
 
 Table 35: Activity trace of a rudimentary interactionally motivated regulartity learning agent.
 ```
-Enacted e1r2,1
-0: PLEASED
-Enacted e1r1,-1
-learn e1r2e1r1
-1: PAINED
-Enacted e1r1,-1
-learn e1r1e1r1
-2: PAINED
-afforded e1r1,-1
-Enacted e2r2,1
-learn e1r1e2r2
-3: PLEASED
-Enacted e1r2,1
-learn e2r2e1r2
-4: PLEASED
-afforded e1r1,-1
-Enacted e2r2,1
-learn e1r2e2r2
-5: PLEASED
+001    Enacted e1r2,1
+002    0: PLEASED
+003    Enacted e1r1,-1
+004    learn e1r2e1r1
+005    1: PAINED
+006    Enacted e1r1,-1
+007    learn e1r1e1r1
+008    2: PAINED
+009    afforded e1r1,-1
+010    Enacted e2r2,1
+011    learn e1r1e2r2
+012    3: PLEASED
+013    Enacted e1r2,1
+014    learn e2r2e1r2
+015    4: PLEASED
+016    afforded e1r1,-1
+017    Enacted e2r2,1
+018    learn e1r2e2r2
+019    5: PLEASED
 
 ```
 
