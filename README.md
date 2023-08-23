@@ -282,7 +282,7 @@ We draw inspiration from natural cognitive systems to design self-programming ag
 
 *Why self-programming is important?*
 
-There are profound theoretical reasons why self-programming is decisive to achieve artificial intelligence. Page 45 will refer you to some articles that elaborate on these reasons, specifically coming from the theory of enaction.
+There are profound theoretical reasons why self-programming is decisive to achieve artificial intelligence. Page 45 will refer you to some articles that elaborate on these reasons, specifically coming from the *theory of enaction*.
 
 Nevertheless, we can already give a simple and intuitive answer. If we build two identical robots, it would be no fun if these two robots generated similar behaviors in the same circumstances. As they develop, we would like them to assess situations differently, make different choices, and carry out different behaviors. Only when we see these significant behavioral differences emerge will we be willing to consider each robot as an intelligent being as opposed to a mere automaton.
 
