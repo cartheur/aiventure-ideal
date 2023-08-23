@@ -260,6 +260,14 @@ learn e1r2e2r2
 
 ```
 
+## Errata
+
+It is crucial to pay attention to the replacement of environments to create pleasure or dissatisfaction with a set of experiments and their results:
+
+= Change Existence030 to instantiate Environment010 instead of Environment030 and run it. Observe that the modified Existence030 also learns to get pleased when it implements Environment010 instead of Environment030.
+- Change Main.java to instantiate Existence031 and run it. Observe that it learns to be pleased in Environment031.
+- Change Existence031 to instantiate Environment010 and then Environment030 and run it. Observe that the modified Existence031 also learns to be pleased when it implements Environment010, Environment030, and Environment031.
+
 ## Introduction to self-programming
 
 Now things get *really* interesting.
