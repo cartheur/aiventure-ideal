@@ -1,5 +1,4 @@
-﻿using Cartheur.Ideal.Mooc.Existence;
-using Cartheur.Ideal.Mooc.Interfaces;
+﻿using Cartheur.Ideal.Mooc.Interfaces;
 
 namespace Cartheur.Ideal.Mooc
 {
@@ -8,18 +7,12 @@ namespace Cartheur.Ideal.Mooc
         static void Main()
         {
             Console.WriteLine("Hello, David...Hello, Chris");
-            // Change this line to instantiate another existence.
-            IExistence existence = new Existence010(); // <-- 020, 030 integrated 031 (problem)
+            
+            IExistence existence = new Existence(); // <-- 020, 030 integrated, 031-032 integrated (check), 040 integrated (check), 050 integrated (check) null object!
+            // 051, 052 todo //Existence existence = new Existence051();
 
-
-            //Existence existence = new Existence031();
-            //Existence existence = new Existence032();
-            //Existence existence = new Existence040();
-            //Existence existence = new Existence050();
-            //Existence existence = new Existence051();
-
-            // Change this line to adjust the number of cycles of the loop.
-            for (int i = 0; i < 20; i++)
+            // Only passes with '2', three or more a null object fail.
+            for (int i = 0; i < 2; i++)
             {
                 string stepTrace = existence.Step();
                 Console.WriteLine(i + ": " + stepTrace);

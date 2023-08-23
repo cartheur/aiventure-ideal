@@ -1,57 +1,63 @@
 ﻿using Cartheur.Ideal.Mooc.Agent;
 using Cartheur.Ideal.Mooc.Coupling;
+using Cartheur.Ideal.Mooc.Environment;
 using Cartheur.Ideal.Mooc.Interfaces;
-using System.Collections;
+using Cartheur.Ideal.Mooc.Tracer;
 
-namespace Cartheur.Ideal.Mooc.Existence
+namespace Cartheur.Ideal.Mooc
 {
     /// <summary>
     /// An Existence010 simulates a "stream of intelligence" made of a succession of Experiences and Results. The Existence010 is SELF-SATISFIED when the Result corresponds to the Result it expected, and FRUSTRATED otherwise. Additionally, the Existence0 is BORED when it has been SELF-SATISFIED for too long, which causes it to try another Experience. An Existence1 is still a single entity rather than being split into an explicit Agent and Environment.
     /// </summary>
     /// <seealso cref="IExistence" />
-    public class Existence010 : IExistence
+    public class Existence : IExistence
     {
+        private Interaction previousSuperInteraction;
+        private Interaction lastSuperInteraction;
+        private Interaction currentSuperInteraction;
+
         public string LABEL_E1 = "e1";
         public string LABEL_E2 = "e2";
         public string LABEL_R1 = "r1";
         public string LABEL_R2 = "r2";
-        public enum Mood { SELF_SATISFIED, FRUSTRATED, BORED, PAINED, PLEASED };
+        public enum Mood { SATISFIED, FRUSTRATED, BORED, PAINED, PLEASED };
 
-        protected Dictionary<string, Experiment> EXPERIENCES = new Dictionary<string, Experiment>();
-        protected Dictionary<string, Result> RESULTS = new Dictionary<string, Result>();
-        protected Dictionary<string, Interaction> INTERACTIONS = new Dictionary<string, Interaction>();
+        public Dictionary<string, Experiment> Experiences = new Dictionary<string, Experiment>();
+        protected Dictionary<string, Result> Results = new Dictionary<string, Result>();
+        protected Dictionary<string, Interaction> Interactions = new Dictionary<string, Interaction>();
 
-        protected int BOREDOME_LEVEL = 4;
+        protected int BOREDOM = 4;
 
         private Mood mood;
         private int selfSatisfactionCounter = 0;
         private Experiment previousExperience;
         private Interaction enactedInteraction;
+        Interaction affordedInteraction;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Existence010"/> class.
+        /// Initializes a new instance of the <see cref="Existence"/> class.
         /// </summary>
-        public Existence010()
+        public Existence()
         {
-            InitializeExistence();
+            Initialize();
         }
 
-        protected void InitializeExistence()
+        void Initialize()
         {
             // 010-level features
-            Experiment e1 = AddOrGetExperience(LABEL_E1);
-            AddOrGetExperience(LABEL_E2);
-            SetPreviousExperience(e1);
-            // 020-level features
-            Experiment e2 = AddOrGetExperience(LABEL_E2);
+            //SetPreviousExperience(e1); <-- 030-level feature requisite
+            // 040 (050)-level features
+            Experiment e1 = (Experiment)AddOrGetExperience(LABEL_E1);
+            Experiment e2 = (Experiment)AddOrGetExperience(LABEL_E2);
             Result r1 = CreateOrGetResult(LABEL_R1);
             Result r2 = CreateOrGetResult(LABEL_R2);
-
-            AddOrGetPrimitiveInteraction(e1, r1, -1);
-            AddOrGetPrimitiveInteraction(e1, r2, 1);
-            AddOrGetPrimitiveInteraction(e2, r1, -1);
-            AddOrGetPrimitiveInteraction(e2, r2, 1);
-            //SetPreviousExperience(e1); <-- 030-level feature requisite
+            // Change the valence depending on the environment to obtain better behaviours.
+            Interaction e11 = (Interaction)AddOrGetPrimitiveInteraction(e1, r1, -1);
+            Interaction e12 = (Interaction)AddOrGetPrimitiveInteraction(e1, r2, 1); // Use valence 1 for Environment040 and 2 for Environment041
+            Interaction e21 = (Interaction)AddOrGetPrimitiveInteraction(e2, r1, -1);
+            Interaction e22 = (Interaction)AddOrGetPrimitiveInteraction(e2, r2, 1); // Use valence 1 for Environment040 and 2 for Environment041
+            e1.SetIntendedInteraction(e12); e1.ResetAbstract();
+            e2.SetIntendedInteraction(e22); e2.ResetAbstract();
         }
 
         /// <summary>
@@ -63,64 +69,57 @@ namespace Cartheur.Ideal.Mooc.Existence
         public string Step()
         {
             List<Anticipation> anticipations = Anticipate();
+            //Interaction intendedInteraction = SelectInteraction(anticipations);
             Experiment experience = SelectExperience(anticipations);
+            Interaction intendedInteraction = experience.GetIntendedInteraction();
             //Experiment experience = SelectInteraction(anticipations).GetExperience();
 
-            /** Change the call to the function returnResult to change the environment */
+            // Change the call to the function returnResult to change the environment
             //Result result = ReturnResult010(experience);
             //Result result = ReturnResult030(experience);
-            Result result = ReturnResult031(experience);
+            Result result = ReturnResult041(experience);
 
-            Interaction enactedInteraction = GetInteraction(experience.GetLabel() + result.GetLabel());
+            Interaction enactedInteraction = Enact(intendedInteraction);
+            //Interaction enactedInteraction = GetInteraction(experience.GetLabel() + result.GetLabel());
             Console.WriteLine("Enacted " + enactedInteraction.toString());
 
+            if (enactedInteraction != intendedInteraction)
+            {
+                intendedInteraction.AddAlternateInteraction(enactedInteraction);
+                Console.WriteLine("Alternate " + enactedInteraction.GetLabel());
+            }
+            if (enactedInteraction != intendedInteraction && experience.IsAbstract())
+            {
+                Result failResult = CreateOrGetResult(enactedInteraction.GetLabel().Replace('e', 'E').Replace('r', 'R') + ">");
+                int valence = enactedInteraction.GetValence();
+                enactedInteraction = (Interaction)AddOrGetPrimitiveInteraction(experience, failResult, valence);
+            }
+
+            if (enactedInteraction.GetValence() >= 0)
+                SetMood(Mood.PLEASED);
+            else
+                SetMood(Mood.PAINED);
+            if (enactedInteraction == intendedInteraction)
+            {
+                SetMood(Mood.SATISFIED);
+                IncSelfSatisfactionCounter();
+            }
+            else
+            {
+                SetMood(Mood.FRUSTRATED);
+                SetSelfSatisfactionCounter(0);
+            }
             if (enactedInteraction.GetValence() >= 0)
                 SetMood(Mood.PLEASED);
             else
                 SetMood(Mood.PAINED);
 
             LearnCompositeInteraction(enactedInteraction);
-
+            SetPreviousSuperInteraction(GetLastSuperInteraction());
             SetEnactedInteraction(enactedInteraction);
 
             return "" + GetMood();
 
-            #region Previous version
-            //Experiment experience = GetPreviousExperience();
-            //if (GetMood() == Mood.PAINED)
-            //    experience = GetOtherExperience(experience);
-            //if (GetMood() == Mood.BORED)
-            //{
-            //    experience = GetOtherExperience(experience);
-            //    SetSelfSatisfactionCounter(0);
-            //}
-            //Result anticipatedResult = Predict(experience);
-            //Result result = ReturnResult010(experience);
-            //AddOrGetPrimitiveInteraction(experience, result);
-
-            //Interaction enactedInteraction = (Interaction)AddOrGetPrimitiveInteraction(experience, result);
-
-            //if (result == anticipatedResult)
-            //{
-            //    SetMood(Mood.SELF_SATISFIED);
-            //    IncSelfSatisfactionCounter();
-            //}
-            //else
-            //{
-            //    SetMood(Mood.FRUSTRATED);
-            //    SetSelfSatisfactionCounter(0);
-            //}
-            //if (GetSelfSatisfactionCounter() >= BOREDOME_LEVEL)
-            //    SetMood(Mood.BORED);
-            //if (enactedInteraction.GetValence() >= 0)
-            //    SetMood(Mood.PLEASED);
-            //else
-            //    SetMood(Mood.PAINED);
-
-            //SetPreviousExperience(experience);
-
-            //return experience.GetLabel() + result.GetLabel() + "--" + GetMood();
-            #endregion
         }
 
         /**
@@ -159,11 +158,57 @@ namespace Cartheur.Ideal.Mooc.Existence
             return new Interaction(label);
         }
 
-        /// <summary>
-        /// Computes the list of anticipations.
-        /// </summary>
-        /// <returns>The list of anticipations</returns>       
         public List<Anticipation> Anticipate()
+        {
+            List<Anticipation> anticipations = GetDefaultAnticipations();
+            List<Interaction> activatedInteractions = GetActivatedInteractions();
+
+            if (GetEnactedInteraction() != null)
+            {
+                foreach (Interaction activatedInteraction in activatedInteractions)
+                {
+                    if (((Interaction)activatedInteraction).GetPostInteraction().GetExperience() != null)
+                    {
+                        Anticipation anticipation = new Anticipation(((Interaction)activatedInteraction).GetPostInteraction().GetExperience(), ((Interaction)activatedInteraction).GetWeight() * ((Interaction)activatedInteraction).GetPostInteraction().GetValence());
+                        int index = anticipations.IndexOf(anticipation);
+                        if (index < 0)
+                            anticipations.Add(anticipation);
+                        else
+                            ((Anticipation)anticipations[index]).AddProclivity(((Interaction)activatedInteraction).GetWeight() * ((Interaction)activatedInteraction).GetPostInteraction().GetValence());
+                    }
+                }
+            }
+
+            foreach (Interaction activatedInteraction in activatedInteractions)
+            {
+                Interaction proposedInteraction = (Interaction)((Interaction)activatedInteraction).GetPostInteraction();
+                int proclivity = ((Interaction)activatedInteraction).GetWeight() * proposedInteraction.GetValence();
+                Anticipation anticipation = new Anticipation(proposedInteraction, proclivity);
+                int index = anticipations.IndexOf(anticipation);
+                if (index < 0)
+                    anticipations.Add(anticipation);
+                else
+                    ((Anticipation)anticipations[index]).AddProclivity(((Interaction)activatedInteraction).GetWeight() * ((Interaction)activatedInteraction).GetPostInteraction().GetValence());
+            }
+
+            foreach (Anticipation anticipation in anticipations)
+            {
+                foreach (Interaction interaction in ((Experiment)((Anticipation)anticipation).GetExperience()).GetEnactedInteractions())
+                {
+                    foreach (Interaction activatedInteraction in activatedInteractions)
+                    {
+                        if (interaction == ((Interaction)activatedInteraction).GetPostInteraction())
+                        {
+                            int proclivity = ((Interaction)activatedInteraction).GetWeight() * ((Interaction)interaction).GetValence();
+                            ((Anticipation)anticipation).AddProclivity(proclivity);
+                        }
+                    }
+                }
+            }
+
+            return anticipations;
+        }
+        public List<Anticipation> Anticipate10()
         {
             List<Anticipation> anticipations = GetDefaultAnticipations();
 
@@ -189,7 +234,7 @@ namespace Cartheur.Ideal.Mooc.Existence
 
             if (anticipations.Count > 0)
             {
-                Interaction affordedInteraction = anticipations[0].GetInteraction();
+                affordedInteraction = (Interaction)anticipations[0].GetInteraction();
                 if (affordedInteraction.GetValence() >= 0)
                     intendedInteraction = affordedInteraction;
                 else
@@ -199,6 +244,36 @@ namespace Cartheur.Ideal.Mooc.Existence
                 intendedInteraction = GetOtherInteraction(null);
             return (Interaction)intendedInteraction;
         }
+
+        public Interaction SelectInteraction(List<Anticipation> anticipations, bool evolve)
+        {
+
+            anticipations.Sort();
+            Interaction intendedInteraction = (Interaction)GetOtherInteraction(null);
+            if (GetSelfSatisfactionCounter() < BOREDOM)
+            {
+                if (anticipations.Count > 0)
+                {
+                    Interaction proposedInteraction = (Interaction)((Anticipation)anticipations[0]).GetInteraction();
+                    if (proposedInteraction.GetValence() >= 0)
+                        intendedInteraction = proposedInteraction;
+                    else
+                        intendedInteraction = (Interaction)GetOtherInteraction(proposedInteraction);
+                }
+            }
+            else
+            {
+                Trace.AddEventElement("mood", "BORED");
+                SetSelfSatisfactionCounter(0);
+
+                if (anticipations.Count == 1)
+                    intendedInteraction = (Interaction)GetOtherInteraction(((Anticipation)anticipations[0]).GetInteraction());
+                else if (anticipations.Count > 1)
+                    intendedInteraction = (Interaction)((Anticipation)anticipations[1]).GetInteraction();
+            }
+            return intendedInteraction;
+        }
+
         /// <summary>
         /// Get the list of activated interactions. An activated interaction is a composite interaction whose preInteraction matches the enactedInteraction.
         /// </summary>
@@ -207,7 +282,7 @@ namespace Cartheur.Ideal.Mooc.Existence
         {
             List<Interaction> activatedInteractions = new List<Interaction>();
             if (GetEnactedInteraction() != null)
-                foreach (Interaction activatedInteraction in INTERACTIONS.Values)
+                foreach (Interaction activatedInteraction in Interactions.Values)
                     if (((Interaction)activatedInteraction).GetPreInteraction() == GetEnactedInteraction())
                         activatedInteractions.Add((Interaction)activatedInteraction);
             return activatedInteractions;
@@ -215,7 +290,7 @@ namespace Cartheur.Ideal.Mooc.Existence
 
         protected Interaction GetInteraction(String label)
         {
-            return (Interaction)INTERACTIONS[label];
+            return (Interaction)Interactions[label];
         }
         /// <summary>
         /// Gets the other interaction.
@@ -224,9 +299,9 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// <returns></returns>
         public Interaction GetOtherInteraction(Interaction interaction)
         {
-            Interaction otherInteraction = (Interaction)INTERACTIONS.Values.ToArray()[0];
+            Interaction otherInteraction = (Interaction)Interactions.Values.ToArray()[0];
             if (interaction != null)
-                foreach (Interaction e in INTERACTIONS.Values)
+                foreach (Interaction e in Interactions.Values)
                 {
                     if (e.GetExperience() != null && e.GetExperience() != interaction.GetExperience())
                     {
@@ -249,15 +324,27 @@ namespace Cartheur.Ideal.Mooc.Existence
         protected List<Anticipation> GetDefaultAnticipations()
         {
             List<Anticipation> anticipations = new List<Anticipation>();
-            foreach (Experiment experience in EXPERIENCES.Values)
+            foreach (Experiment experience in Experiences.Values)
             {
                 Anticipation anticipation = new Anticipation(experience, 0);
                 anticipations.Add(anticipation);
             }
             return anticipations;
         }
+        public void SetPreviousSuperInteraction(Interaction previousSuperInteraction)
+        {
+            this.previousSuperInteraction = previousSuperInteraction;
+        }
+        public Interaction GetLastSuperInteraction()
+        {
+            return lastSuperInteraction;
+        }
+        public void SetLastSuperInteraction(Interaction lastSuperInteraction)
+        {
+            this.lastSuperInteraction = lastSuperInteraction;
+        }
 
-        public Experiment SelectExperience(List<Anticipation> anticipations)
+        public static Experiment SelectExperience(List<Anticipation> anticipations)
         {
             // The list of anticipations is never empty because all the experiences are proposed by default with a proclivity of 0
             anticipations.Sort();
@@ -285,18 +372,37 @@ namespace Cartheur.Ideal.Mooc.Existence
             return result;
         }
 
-        #region Old version of interaction
         /// <summary>
         /// Create an interaction as a tuple <experience, result>.
         /// </summary>
         /// <param name="experience">The experience.</param>
         /// <param name="result">The result.</param>
         /// <returns>The created interaction</returns>
-        protected Interaction AddOrGetPrimitiveInteraction(Experiment experience, Result result)
+        public Interaction AddOrGetPrimitiveInteraction(Experiment experience, Result result)
         {
             Interaction interaction = AddOrGetInteraction(experience.GetLabel() + result.GetLabel());
             interaction.SetExperience(experience);
             interaction.SetResult(result);
+            return interaction;
+        }
+        /// <summary>
+        /// Create an interaction from its label.
+        /// </summary>
+        /// <param name="label">This interaction's label.</param>
+        /// <param name="valence">The interaction's valence.</param>
+        /// <returns>The created interaction</returns>
+        public Interaction AddOrGetPrimitiveInteraction(string label, int valence)
+        {
+            Interaction interaction;
+
+            if (!Interactions.ContainsKey(label))
+            {
+                interaction = CreateInteraction(label);
+                interaction.SetValence(valence);
+                Interactions.Add(label, interaction);
+            }
+            interaction = (Interaction)Interactions[label];
+
             return interaction;
         }
 
@@ -307,9 +413,9 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// <returns>The interaction.</returns>
         protected Interaction AddOrGetInteraction(string label)
         {
-            if (!INTERACTIONS.ContainsKey(label))
-                INTERACTIONS.Add(label, CreateInteraction(label));
-            return INTERACTIONS.ContainsKey(label) ? INTERACTIONS[label] : null;
+            if (!Interactions.ContainsKey(label))
+                Interactions.Add(label, CreateInteraction(label));
+            return Interactions.ContainsKey(label) ? Interactions[label] : null;
         }
         ///// <summary>
         ///// Creates the interaction.
@@ -351,19 +457,17 @@ namespace Cartheur.Ideal.Mooc.Existence
         protected Interaction AddOrGetPrimitiveInteraction(Experiment experience, Result result, int valence)
         {
             string label = experience.GetLabel() + result.GetLabel();
-            if (!INTERACTIONS.ContainsKey(label))
+            if (!Interactions.ContainsKey(label))
             {
                 Interaction interactions = CreateInteraction(label);
                 interactions.SetExperience(experience);
                 interactions.SetResult(result);
                 interactions.SetValence(valence);
-                INTERACTIONS.Add(label, interactions);
+                Interactions.Add(label, interactions);
             }
-            Interaction interaction = (Interaction)INTERACTIONS[label];
+            Interaction interaction = (Interaction)Interactions[label];
             return interaction;
         }
-
-        #endregion
 
         /// <summary>
         /// Finds an interaction from its experience.
@@ -375,7 +479,7 @@ namespace Cartheur.Ideal.Mooc.Existence
             Interaction interaction = null;
             Result anticipatedResult = null;
 
-            foreach (Interaction i in INTERACTIONS.Values)
+            foreach (Interaction i in Interactions.Values)
                 if (i.GetExperience().Equals(experience))
                     interaction = i;
 
@@ -392,9 +496,9 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// <returns>The experience.</returns>
         protected Experiment AddOrGetExperience(string label)
         {
-            if (!EXPERIENCES.ContainsKey(label))
-                EXPERIENCES.Add(label, CreateExperience(label));
-            return EXPERIENCES.ContainsKey(label) ? EXPERIENCES[label] : null;
+            if (!Experiences.ContainsKey(label))
+                Experiences.Add(label, CreateExperience(label));
+            return Experiences.ContainsKey(label) ? Experiences[label] : null;
         }
 
         protected Experiment CreateExperience(string label)
@@ -410,7 +514,7 @@ namespace Cartheur.Ideal.Mooc.Existence
         protected Experiment GetOtherExperience(Experiment experience)
         {
             Experiment otherExperience = null;
-            foreach (Experiment e in EXPERIENCES.Values)
+            foreach (Experiment e in Experiences.Values)
             {
                 if (e != experience)
                 {
@@ -428,10 +532,71 @@ namespace Cartheur.Ideal.Mooc.Existence
         /// <returns>The result.</returns>
         protected Result CreateOrGetResult(string label)
         {
-            if (!RESULTS.ContainsKey(label))
-                RESULTS[label] = new Result(label);
-            return RESULTS[label];
+            if (!Results.ContainsKey(label))
+                Results[label] = new Result(label);
+            return Results[label];
         }
+
+        #region Needs refactoring
+
+        public Interaction Enact(Interaction intendedInteraction)
+        {
+
+            if (intendedInteraction.IsPrimitive())
+                return EnactPrimitiveIntearction(intendedInteraction);
+            else
+            {
+                // Enact the pre-interaction
+                Interaction enactedPreInteraction = Enact(intendedInteraction.GetPreInteraction());
+                if (!enactedPreInteraction.Equals(intendedInteraction.GetPreInteraction()))
+                    // if the preInteraction failed then the enaction of the intendedInteraction is interrupted here.
+                    return enactedPreInteraction;
+                else
+                {
+                    // Enact the post-interaction
+                    Interaction enactedPostInteraction = Enact(intendedInteraction.GetPostInteraction());
+                    return (Interaction)AddOrGetCompositeInteraction(enactedPreInteraction, enactedPostInteraction);
+                }
+            }
+        }
+
+        public Experiment AddOrGetAbstractExperience(Interaction interaction)
+        {
+            String label = interaction.GetLabel().Replace('e', 'E').Replace('r', 'R').Replace('>', '|');
+            if (!Experiences.ContainsKey(label))
+            {
+                Experiment abstractExperience = new Experiment(label);
+                abstractExperience.SetIntendedInteraction(interaction);
+                interaction.SetExperience(abstractExperience);
+                Experiences.Add(label, abstractExperience);
+            }
+            return (Experiment)Experiences[label];
+        }
+
+        /**
+         * Implements the cognitive coupling between the agent and the environment
+         * @param intendedPrimitiveInteraction: The intended primitive interaction to try to enact against the environment
+         * @param The actually enacted primitive interaction.
+         */
+        public Interaction EnactPrimitiveIntearction(Interaction intendedPrimitiveInteraction)
+        {
+            Experiment experience = intendedPrimitiveInteraction.GetExperience();
+            /** Change the returnResult() to change the environment 
+             *  Change the valence of primitive interactions to obtain better behaviors */
+            //Result result = returnResult010(experience);
+            //Result result = returnResult030(experience);
+            //Result result = returnResult031(experience);
+            //Result result = ReturnResult040(experience);
+            Result result = ReturnResult041(experience);
+            return (Interaction)AddOrGetPrimitiveInteraction(experience, result);
+        }
+
+        public Interaction GetPreviousSuperInteraction()
+        {
+            return previousSuperInteraction;
+        }
+
+        #endregion
 
         public Mood GetMood()
         {
@@ -516,6 +681,34 @@ namespace Cartheur.Ideal.Mooc.Existence
                 else
                     result = CreateOrGetResult(LABEL_R1);
             }
+            return result;
+        }
+        public Result ReturnResult040(Experiment experience)
+        {
+            Result result = CreateOrGetResult(LABEL_R1);
+
+            if (Environment40.GetPenultimateExperience() != experience &&
+                GetPreviousExperience() == experience)
+                result = CreateOrGetResult(LABEL_R2);
+
+            Environment40.SetPenultimateExperience(GetPreviousExperience());
+            SetPreviousExperience(experience);
+
+            return result;
+        }
+        public Result ReturnResult041(Experiment experience)
+        {
+            Result result = CreateOrGetResult(LABEL_R1);
+
+            if (Environment41.GetAntePenultimateExperience() != experience &&
+                Environment40.GetPenultimateExperience() == experience &&
+                GetPreviousExperience() == experience)
+                result = CreateOrGetResult(LABEL_R2);
+
+            Environment41.SetAntePenultimateExperience(Environment40.GetPenultimateExperience());
+            Environment40.SetPenultimateExperience(GetPreviousExperience());
+            SetPreviousExperience(experience);
+
             return result;
         }
     }
