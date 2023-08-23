@@ -270,4 +270,23 @@ It is crucial to pay attention to the replacement of environments to create plea
 
 ## Introduction to self-programming
 
-Now things get *really* interesting.
+*Defining self-programming*
+
+We define a self-programming agent as an agent that can autonomously acquire executable code and re-execute this code appropriately.
+
+Similar to other machine learning agents, self-programming agents record data in memory as they learn. Traditional machine learning agents, however, run a predefined program that exploits this data as parameters. Self-programming agents also run a predefined program, but this program can control the execution of learned data as sequences of instructions.
+
+To understand the full implication of this definition, it is important to take a cognitive science perspective rather than a software development perspective. A natural cognitive system (an animal) does not have a compiler or an interpreter to exploit a programming language. The only thing at its disposal that remotely resembles an instruction set is the set of interaction possibilities it has with the world around it. The only thing at its disposal that remotely resembles an execution engine is its cognitive system which allows it to execute and learn sequences of interactions with the world.
+
+We draw inspiration from natural cognitive systems to design self-programming agents. Like biological systems, these agents program themselves using the instruction set at their disposal (the set of interaction possibilities they have with the world), and the execution engine at their disposal (their cognitive system that executes and learns sequences of interactions with the world).
+
+*Why self-programming is important?*
+
+There are profound theoretical reasons why self-programming is decisive to achieve artificial intelligence. Page 45 will refer you to some articles that elaborate on these reasons, specifically coming from the theory of enaction.
+
+Nevertheless, we can already give a simple and intuitive answer. If we build two identical robots, it would be no fun if these two robots generated similar behaviors in the same circumstances. As they develop, we would like them to assess situations differently, make different choices, and carry out different behaviors. Only when we see these significant behavioral differences emerge will we be willing to consider each robot as an intelligent being as opposed to a mere automaton.
+
+Since assessing the situation, making choices, and carrying out behaviors is the role of programs, we will only manage to make significant behavioral differences emerge autonomously if the robot can program itself autonomously. Of course, defining "significant behavioral differences" is challenging. Here is a video explaining this concept:
+
+![Vid.01](/media/Rudimentary%20self-programming.mp4 "Video 01")
+
