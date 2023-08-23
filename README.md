@@ -428,211 +428,211 @@ Table 46 shows the trace that you should see in your console if you ran Project 
 Table 46: Activity trace of a rudimentary self-programming agent.
 
 ```
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    0: PAINED
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    Enacted e1r2 valence 1 weight 0
-    learn <e1r1e1r2> valence 0 weight 1
-    1: PLEASED
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    learn <e1r2e1r1> valence 0 weight 1
-    learn <e1r1<e1r2e1r1>> valence -1 weight 1
-    learn <<e1r1e1r2>e1r1> valence -1 weight 1
-    2: PAINED
-    propose e1 proclivity 1
-    propose e2 proclivity 0
-    propose <E1R2E1R1| proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    learn <e1r1e1r1> valence -2 weight 1
-    learn <e1r2<e1r1e1r1>> valence -1 weight 1
-    learn <<e1r2e1r1>e1r1> valence -1 weight 1
-    3: PAINED
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    propose <E1R2E1R1| proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    reinforce <e1r1e1r1> valence -2 weight 2
-    learn <e1r1<e1r1e1r1>> valence -3 weight 1
-    learn <<e1r1e1r1>e1r1> valence -3 weight 1
-    4: PAINED
-    propose e2 proclivity 0
-    propose <E1R2E1R1| proclivity 0
-    propose e1 proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    Enacted e2r1 valence -1 weight 0
-    learn <e1r1e2r1> valence -2 weight 1
-    learn <e1r1<e1r1e2r1>> valence -3 weight 1
-    learn <<e1r1e1r1>e2r1> valence -3 weight 1
-    5: PAINED
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    learn <e2r1e1r1> valence -2 weight 1
-    learn <e1r1<e2r1e1r1>> valence -3 weight 1
-    learn <<e1r1e2r1>e1r1> valence -3 weight 1
-    6: PAINED
-    propose <E1R2E1R1| proclivity 0
-    propose e1 proclivity -1
-    propose e2 proclivity -1
-    propose <E2R1E1R1| proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    propose <E1R1E2R1| proclivity -2
-    Enacted <e1r2e1r1> valence 0 weight 1
-    reinforce <e1r1<e1r2e1r1>> valence -1 weight 2
-    7: PLEASED
-    propose <E1R2E1R1| proclivity 0
-    propose e2 proclivity -1
-    propose e1 proclivity -2
-    propose <E2R1E1R1| proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    propose <E1R1E2R1| proclivity -2
-    Enacted e1r1 valence -1 weight 0
-    learn <<e1r2e1r1><E1R2E1R1|E1R1>> valence -1 weight 1
-    8: PAINED
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    learn <<E1R2E1R1|E1R1>e1r1> valence -2 weight 1
-    learn <<e1r2e1r1><<E1R2E1R1|E1R1>e1r1>> valence -2 weight 1
-    learn <<<e1r2e1r1><E1R2E1R1|E1R1>>e1r1> valence -2 weight 1
-    9: PAINED
-    propose <E1R2E1R1| proclivity 0
-    propose e1 proclivity -1
-    propose e2 proclivity -1
-    propose <E2R1E1R1| proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    propose <E1R1E2R1| proclivity -2
-    Enacted e1r1 valence -1 weight 0
-    learn <e1r1<E1R2E1R1|E1R1>> valence -2 weight 1
-    learn <<E1R2E1R1|E1R1><e1r1<E1R2E1R1|E1R1>>> valence -3 weight 1
-    learn <<<E1R2E1R1|E1R1>e1r1><E1R2E1R1|E1R1>> valence -3 weight 1
-    10: PAINED
-    propose e2 proclivity 0
-    propose e1 proclivity -1
-    propose <E1R1<E1R2E1R1|E1R1|| proclivity -2
-    Enacted e2r1 valence -1 weight 0
-    learn <<E1R2E1R1|E1R1>e2r1> valence -2 weight 1
-    learn <e1r1<<E1R2E1R1|E1R1>e2r1>> valence -3 weight 1
-    learn <<e1r1<E1R2E1R1|E1R1>>e2r1> valence -3 weight 1
-    11: PAINED
-    propose e2 proclivity 0
-    propose e1 proclivity -1
-    Enacted e2r2 valence 1 weight 0
-    learn <e2r1e2r2> valence 0 weight 1
-    learn <<E1R2E1R1|E1R1><e2r1e2r2>> valence -1 weight 1
-    learn <<<E1R2E1R1|E1R1>e2r1>e2r2> valence -1 weight 1
-    12: PLEASED
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    learn <e2r2e1r1> valence 0 weight 1
-    learn <e2r1<e2r2e1r1>> valence -1 weight 1
-    learn <<e2r1e2r2>e1r1> valence -1 weight 1
-    13: PAINED
-    propose e1 proclivity -1
-    propose e2 proclivity -1
-    propose <E1R2E1R1| proclivity -1
-    propose <<E1R2E1R1|E1R1|E2R1| proclivity -2
-    propose <E2R1E1R1| proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    propose <E1R1E2R1| proclivity -2
-    Enacted e1r2 valence 1 weight 0
-    reinforce <e1r1e1r2> valence 0 weight 2
-    learn <e2r2<e1r1e1r2>> valence 1 weight 1
-    learn <<e2r2e1r1>e1r2> valence 1 weight 1
-    14: PLEASED
-    propose e2 proclivity 0
-    propose e1 proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    Enacted e2r1 valence -1 weight 0
-    learn <e1r2e2r1> valence 0 weight 1
-    learn <e1r1<e1r2e2r1>> valence -1 weight 1
-    learn <<e1r1e1r2>e2r1> valence -1 weight 1
-    15: PAINED
-    propose e2 proclivity 1
-    propose <E2R2E1R1| proclivity 0
-    propose e1 proclivity -1
-    Enacted e2r2 valence 1 weight 0
-    reinforce <e2r1e2r2> valence 0 weight 2
-    learn <e1r2<e2r1e2r2>> valence 1 weight 1
-    learn <<e1r2e2r1>e2r2> valence 1 weight 1
-    16: PLEASED
-    propose e2 proclivity 0
-    propose <E1R1E1R2| proclivity 0
-    propose e1 proclivity -2
-    Enacted e2r1 valence -1 weight 0
-    learn <e2r2e2r1> valence 0 weight 1
-    learn <e2r1<e2r2e2r1>> valence -1 weight 1
-    learn <<e2r1e2r2>e2r1> valence -1 weight 1
-    17: PAINED
-    propose e2 proclivity 2
-    propose <E2R2E2R1| proclivity 0
-    propose <E2R2E1R1| proclivity 0
-    propose e1 proclivity -1
-    Enacted e2r1 valence -1 weight 0
-    learn <e2r1e2r1> valence -2 weight 1
-    learn <e2r2<e2r1e2r1>> valence -1 weight 1
-    learn <<e2r2e2r1>e2r1> valence -1 weight 1
-    18: PAINED
-    propose e2 proclivity 1
-    propose <E2R2E2R1| proclivity 0
-    propose <E2R2E1R1| proclivity 0
-    propose e1 proclivity -1
-    Enacted e2r1 valence -1 weight 0
-    reinforce <e2r1e2r1> valence -2 weight 2
-    learn <e2r1<e2r1e2r1>> valence -3 weight 1
-    learn <<e2r1e2r1>e2r1> valence -3 weight 1
-    19: PAINED
-    propose <E2R2E2R1| proclivity 0
-    propose <E2R2E1R1| proclivity 0
-    propose e1 proclivity -1
-    propose e2 proclivity -1
-    propose <E2R1E2R1| proclivity -2
-    Enacted e2r1 valence -1 weight 0
-    learn <e2r1<E2R2E2R1|E2R1>> valence -2 weight 1
-    learn <e2r1<e2r1<E2R2E2R1|E2R1>>> valence -3 weight 1
-    learn <<e2r1e2r1><E2R2E2R1|E2R1>> valence -3 weight 1
-    20: PAINED
-    propose e1 proclivity 0
-    propose e2 proclivity 0
-    Enacted e1r1 valence -1 weight 0
-    learn <<E2R2E2R1|E2R1>e1r1> valence -2 weight 1
-    learn <e2r1<<E2R2E2R1|E2R1>e1r1>> valence -3 weight 1
-    learn <<e2r1<E2R2E2R1|E2R1>>e1r1> valence -3 weight 1
-    21: PAINED
-    propose e1 proclivity 0
-    propose <E1R2E2R1| proclivity 0
-    propose e2 proclivity -1
-    propose <E1R2E1R1| proclivity -1
-    propose <E2R1E1R1| proclivity -2
-    propose <<E1R2E1R1|E1R1|E2R1| proclivity -2
-    propose <E1R1E2R1| proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    Enacted e1r2 valence 1 weight 0
-    reinforce <e1r1e1r2> valence 0 weight 3
-    learn <<E2R2E2R1|E2R1><e1r1e1r2>> valence -1 weight 1
-    learn <<<E2R2E2R1|E2R1>e1r1>e1r2> valence -1 weight 1
-    22: PLEASED
-    propose <E2R1E2R2| proclivity 0
-    propose e1 proclivity -2
-    propose e2 proclivity -2
-    propose <E1R1E1R1| proclivity -2
-    Enacted <e2r1e2r2> valence 0 weight 2
-    reinforce <e1r2<e2r1e2r2>> valence 1 weight 2
-    23: PLEASED
-    propose <E1R1E1R2| proclivity 0
-    propose e1 proclivity -2
-    propose e2 proclivity -2
-    propose <E2R1E2R1| proclivity -2
-    Enacted <e1r1e1r2> valence 0 weight 3
-    learn <<e2r1e2r2><e1r1e1r2>> valence 0 weight 1
-    24: PLEASED
-    propose <E2R1E2R2| proclivity 0
+001    propose e1 proclivity 0
+002    propose e2 proclivity 0
+003    Enacted e1r1 valence -1 weight 0
+004    0: PAINED
+005    propose e1 proclivity 0
+006    propose e2 proclivity 0
+007    Enacted e1r2 valence 1 weight 0
+008    learn <e1r1e1r2> valence 0 weight 1
+009    1: PLEASED
+010    propose e1 proclivity 0
+011    propose e2 proclivity 0
+012    Enacted e1r1 valence -1 weight 0
+013    learn <e1r2e1r1> valence 0 weight 1
+014    learn <e1r1<e1r2e1r1>> valence -1 weight 1
+015    learn <<e1r1e1r2>e1r1> valence -1 weight 1
+016    2: PAINED
+017    propose e1 proclivity 1
+018    propose e2 proclivity 0
+019    propose <E1R2E1R1| proclivity 0
+020    Enacted e1r1 valence -1 weight 0
+021    learn <e1r1e1r1> valence -2 weight 1
+022    learn <e1r2<e1r1e1r1>> valence -1 weight 1
+023    learn <<e1r2e1r1>e1r1> valence -1 weight 1
+024    3: PAINED
+025    propose e1 proclivity 0
+026    propose e2 proclivity 0
+027    propose <E1R2E1R1| proclivity 0
+028    Enacted e1r1 valence -1 weight 0
+029    reinforce <e1r1e1r1> valence -2 weight 2
+030    learn <e1r1<e1r1e1r1>> valence -3 weight 1
+031    learn <<e1r1e1r1>e1r1> valence -3 weight 1
+032    4: PAINED
+033    propose e2 proclivity 0
+034    propose <E1R2E1R1| proclivity 0
+035    propose e1 proclivity -2
+036    propose <E1R1E1R1| proclivity -2
+037    Enacted e2r1 valence -1 weight 0
+038    learn <e1r1e2r1> valence -2 weight 1
+039    learn <e1r1<e1r1e2r1>> valence -3 weight 1
+040    learn <<e1r1e1r1>e2r1> valence -3 weight 1
+041    5: PAINED
+042    propose e1 proclivity 0
+043    propose e2 proclivity 0
+044    Enacted e1r1 valence -1 weight 0
+045    learn <e2r1e1r1> valence -2 weight 1
+046    learn <e1r1<e2r1e1r1>> valence -3 weight 1
+047    learn <<e1r1e2r1>e1r1> valence -3 weight 1
+048    6: PAINED
+049    propose <E1R2E1R1| proclivity 0
+050    propose e1 proclivity -1
+051    propose e2 proclivity -1
+052    propose <E2R1E1R1| proclivity -2
+053    propose <E1R1E1R1| proclivity -2
+054    propose <E1R1E2R1| proclivity -2
+055    Enacted <e1r2e1r1> valence 0 weight 1
+056    reinforce <e1r1<e1r2e1r1>> valence -1 weight 2
+057    7: PLEASED
+058    propose <E1R2E1R1| proclivity 0
+059    propose e2 proclivity -1
+060    propose e1 proclivity -2
+061    propose <E2R1E1R1| proclivity -2
+062    propose <E1R1E1R1| proclivity -2
+063    propose <E1R1E2R1| proclivity -2
+064    Enacted e1r1 valence -1 weight 0
+065    learn <<e1r2e1r1><E1R2E1R1|E1R1>> valence -1 weight 1
+066    8: PAINED
+067    propose e1 proclivity 0
+068    propose e2 proclivity 0
+069    Enacted e1r1 valence -1 weight 0
+070    learn <<E1R2E1R1|E1R1>e1r1> valence -2 weight 1
+071    learn <<e1r2e1r1><<E1R2E1R1|E1R1>e1r1>> valence -2 weight 1
+072    learn <<<e1r2e1r1><E1R2E1R1|E1R1>>e1r1> valence -2 weight 1
+073    9: PAINED
+074    propose <E1R2E1R1| proclivity 0
+075    propose e1 proclivity -1
+076    propose e2 proclivity -1
+077    propose <E2R1E1R1| proclivity -2
+078    propose <E1R1E1R1| proclivity -2
+079    propose <E1R1E2R1| proclivity -2
+080    Enacted e1r1 valence -1 weight 0
+081    learn <e1r1<E1R2E1R1|E1R1>> valence -2 weight 1
+082    learn <<E1R2E1R1|E1R1><e1r1<E1R2E1R1|E1R1>>> valence -3 weight 1
+083    learn <<<E1R2E1R1|E1R1>e1r1><E1R2E1R1|E1R1>> valence -3 weight 1
+084    10: PAINED
+085    propose e2 proclivity 0
+086    propose e1 proclivity -1
+087    propose <E1R1<E1R2E1R1|E1R1|| proclivity -2
+088    Enacted e2r1 valence -1 weight 0
+089    learn <<E1R2E1R1|E1R1>e2r1> valence -2 weight 1
+090    learn <e1r1<<E1R2E1R1|E1R1>e2r1>> valence -3 weight 1
+091    learn <<e1r1<E1R2E1R1|E1R1>>e2r1> valence -3 weight 1
+092    11: PAINED
+093    propose e2 proclivity 0
+094    propose e1 proclivity -1
+095    Enacted e2r2 valence 1 weight 0
+096    learn <e2r1e2r2> valence 0 weight 1
+097    learn <<E1R2E1R1|E1R1><e2r1e2r2>> valence -1 weight 1
+098    learn <<<E1R2E1R1|E1R1>e2r1>e2r2> valence -1 weight 1
+099    12: PLEASED
+100    propose e1 proclivity 0
+101    propose e2 proclivity 0
+102    Enacted e1r1 valence -1 weight 0
+103    learn <e2r2e1r1> valence 0 weight 1
+104    learn <e2r1<e2r2e1r1>> valence -1 weight 1
+105    learn <<e2r1e2r2>e1r1> valence -1 weight 1
+106    13: PAINED
+107    propose e1 proclivity -1
+108    propose e2 proclivity -1
+109    propose <E1R2E1R1| proclivity -1
+110    propose <<E1R2E1R1|E1R1|E2R1| proclivity -2
+111    propose <E2R1E1R1| proclivity -2
+112    propose <E1R1E1R1| proclivity -2
+113    propose <E1R1E2R1| proclivity -2
+114    Enacted e1r2 valence 1 weight 0
+115    reinforce <e1r1e1r2> valence 0 weight 2
+116    learn <e2r2<e1r1e1r2>> valence 1 weight 1
+117    learn <<e2r2e1r1>e1r2> valence 1 weight 1
+118    14: PLEASED
+119    propose e2 proclivity 0
+120    propose e1 proclivity -2
+121    propose <E1R1E1R1| proclivity -2
+122    Enacted e2r1 valence -1 weight 0
+123    learn <e1r2e2r1> valence 0 weight 1
+124    learn <e1r1<e1r2e2r1>> valence -1 weight 1
+125    learn <<e1r1e1r2>e2r1> valence -1 weight 1
+126    15: PAINED
+127    propose e2 proclivity 1
+128    propose <E2R2E1R1| proclivity 0
+129    propose e1 proclivity -1
+130    Enacted e2r2 valence 1 weight 0
+131    reinforce <e2r1e2r2> valence 0 weight 2
+132    learn <e1r2<e2r1e2r2>> valence 1 weight 1
+133    learn <<e1r2e2r1>e2r2> valence 1 weight 1
+134    16: PLEASED
+135    propose e2 proclivity 0
+136    propose <E1R1E1R2| proclivity 0
+137    propose e1 proclivity -2
+138    Enacted e2r1 valence -1 weight 0
+139    learn <e2r2e2r1> valence 0 weight 1
+140    learn <e2r1<e2r2e2r1>> valence -1 weight 1
+141    learn <<e2r1e2r2>e2r1> valence -1 weight 1
+142    17: PAINED
+143    propose e2 proclivity 2
+144    propose <E2R2E2R1| proclivity 0
+145    propose <E2R2E1R1| proclivity 0
+146    propose e1 proclivity -1
+147    Enacted e2r1 valence -1 weight 0
+148    learn <e2r1e2r1> valence -2 weight 1
+149    learn <e2r2<e2r1e2r1>> valence -1 weight 1
+150    learn <<e2r2e2r1>e2r1> valence -1 weight 1
+151    18: PAINED
+152    propose e2 proclivity 1
+153    propose <E2R2E2R1| proclivity 0
+154    propose <E2R2E1R1| proclivity 0
+155    propose e1 proclivity -1
+156    Enacted e2r1 valence -1 weight 0
+157    reinforce <e2r1e2r1> valence -2 weight 2
+158    learn <e2r1<e2r1e2r1>> valence -3 weight 1
+159    learn <<e2r1e2r1>e2r1> valence -3 weight 1
+160    19: PAINED
+161    propose <E2R2E2R1| proclivity 0
+162    propose <E2R2E1R1| proclivity 0
+163    propose e1 proclivity -1
+164    propose e2 proclivity -1
+165    propose <E2R1E2R1| proclivity -2
+166    Enacted e2r1 valence -1 weight 0
+167    learn <e2r1<E2R2E2R1|E2R1>> valence -2 weight 1
+168    learn <e2r1<e2r1<E2R2E2R1|E2R1>>> valence -3 weight 1
+169    learn <<e2r1e2r1><E2R2E2R1|E2R1>> valence -3 weight 1
+170    20: PAINED
+171    propose e1 proclivity 0
+172    propose e2 proclivity 0
+173    Enacted e1r1 valence -1 weight 0
+174    learn <<E2R2E2R1|E2R1>e1r1> valence -2 weight 1
+175    learn <e2r1<<E2R2E2R1|E2R1>e1r1>> valence -3 weight 1
+176    learn <<e2r1<E2R2E2R1|E2R1>>e1r1> valence -3 weight 1
+177    21: PAINED
+178    propose e1 proclivity 0
+179    propose <E1R2E2R1| proclivity 0
+180    propose e2 proclivity -1
+181    propose <E1R2E1R1| proclivity -1
+182    propose <E2R1E1R1| proclivity -2
+183    propose <<E1R2E1R1|E1R1|E2R1| proclivity -2
+184    propose <E1R1E2R1| proclivity -2
+185    propose <E1R1E1R1| proclivity -2
+186    Enacted e1r2 valence 1 weight 0
+187    reinforce <e1r1e1r2> valence 0 weight 3
+188    learn <<E2R2E2R1|E2R1><e1r1e1r2>> valence -1 weight 1
+189    learn <<<E2R2E2R1|E2R1>e1r1>e1r2> valence -1 weight 1
+190    22: PLEASED
+191    propose <E2R1E2R2| proclivity 0
+192    propose e1 proclivity -2
+193    propose e2 proclivity -2
+194    propose <E1R1E1R1| proclivity -2
+195    Enacted <e2r1e2r2> valence 0 weight 2
+196    reinforce <e1r2<e2r1e2r2>> valence 1 weight 2
+197    23: PLEASED
+198    propose <E1R1E1R2| proclivity 0
+199    propose e1 proclivity -2
+200    propose e2 proclivity -2
+201    propose <E2R1E2R1| proclivity -2
+202    Enacted <e1r1e1r2> valence 0 weight 3
+203    learn <<e2r1e2r2><e1r1e1r2>> valence 0 weight 1
+204    24: PLEASED
+205    propose <E2R1E2R2| proclivity 0
 206    propose e1 proclivity -2
 207    propose e2 proclivity -2
 208    propose <E1R1E1R1| proclivity -2
