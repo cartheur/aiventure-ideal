@@ -232,3 +232,34 @@ Table 33-3: Pseudocode for weighted anticipations.
 
 Now, the learnCompositeInteraction() function either records or reinforces composite interactions. The anticipate() function generates an anticipation for each proposed experiment. Anticipations have a proclivity value computed from the weight of the proposing activated composite interaction multiplied by the valence of the proposed interaction. As a result, the anticipations that are the most likely to result in the primitive interaction that have the highest valence receive the highest proclivity. In the example above, in the context when e1r1 has been enacted, the agent learns to choose e1 because it will more likely result in a positive interaction than e2.
 
+## Behavioral analysis of a rudimentary constructivist agent
+
+Table 35 shows the trace that you should see in your console if you ran Project 3. If you did not run it, you can refer to the pseudocode presented in Tables 33-1 and 33-2 to understand this trace.
+
+Table 35: Activity trace of a rudimentary interactionally motivated regulartity learning agent.
+```
+Enacted e1r2,1
+0: PLEASED
+Enacted e1r1,-1
+learn e1r2e1r1
+1: PAINED
+Enacted e1r1,-1
+learn e1r1e1r1
+2: PAINED
+afforded e1r1,-1
+Enacted e2r2,1
+learn e1r1e2r2
+3: PLEASED
+Enacted e1r2,1
+learn e2r2e1r2
+4: PLEASED
+afforded e1r1,-1
+Enacted e2r2,1
+learn e1r2e2r2
+5: PLEASED
+
+```
+
+## Introduction to self-programming
+
+Now things get *really* interesting.
