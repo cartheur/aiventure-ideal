@@ -1,11 +1,12 @@
-﻿
+﻿using Cartheur.Ideal.Mooc.Interfaces;
+
 namespace Cartheur.Ideal.Mooc.Tracer
 {
     /// <summary>
     /// A lot to do in here.
     /// </summary>
-    /// <seealso cref="Cartheur.Ideal.Mooc.Tracer.Tracer&lt;Cartheur.Ideal.Mooc.Tracer.Element&gt;" />
-    public class AbstractTracer : Tracer<Element>
+    /// <seealso cref="ITrace&lt;Element&gt;" />
+    public class AbstractTracer : ITrace<Element>
     {
 
         public AbstractTracer() { }

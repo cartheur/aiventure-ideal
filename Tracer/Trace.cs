@@ -1,19 +1,16 @@
-﻿
+﻿using Cartheur.Ideal.Mooc.Interfaces;
+
 namespace Cartheur.Ideal.Mooc.Tracer
 {
-    /**
- * The Class Trace provides static methods that can be called from anywhere in the project to record elements of trace.   
- * A new Event is created by the method startNewEvent(). Events have incremental time codes.
- * The other methods add new elements and sub-elements to the current Event.
- * @author Olivier
- */
+    /// <summary>
+    /// The class Trace provides static methods that can be called from anywhere in the project to record elements of trace. A new Event is created by the method startNewEvent(). Events have incremental time codes. The other methods add new elements and sub-elements to the current Event.
+    /// </summary>
     public class Trace
     {
-
-        private static Tracer<Element> tracer;
+        private static ITrace<Element> tracer;
         private static int time = 0;
 
-        public static void Init(Tracer<Element> t)
+        public static void Init(ITrace<Element> t)
         {
             tracer = t;
         }
