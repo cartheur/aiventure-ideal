@@ -1,6 +1,6 @@
 # aiventure-ideal
 
-Implementation of DEvelopmentAl Learning (IDEAL) Course | A lot of people seem scared by this code..Why? I don't know, but it is beautifull.
+Implementation of DEvelopmentAl Learning (IDEAL) Course | A lot of people seem scared by this code..Why? I don't know, but it is beautifulllllllllllll.
 
 ## Introduction to the embodied paradigm
 
