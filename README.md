@@ -1,6 +1,6 @@
 # aiventure-ideal
 
-Implementation of DEvelopmentAl Learning (IDEAL) Course | A lot of people seem scared by this code..Why? I don't know, seems harmless enough.
+Implementation of DEvelopmentAl Learning (IDEAL) Course | A shout goes out to Norbert Weiner for inspiration.
 
 ## Introduction to the embodied paradigm
 
