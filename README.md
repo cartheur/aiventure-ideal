@@ -4,7 +4,7 @@ Implementation of DEvelopmentAl Learning (IDEAL) Course | A certain kind of futu
 
 ## Introduction to the embodied paradigm
 
-The primary message of this course is:
+The primary message of this learning is:
 
 **Do not consider the agent's input data as the agent's perception of its environment.**
 
