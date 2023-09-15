@@ -12,7 +12,7 @@ The agent is not a passive observer of reality, but rather constructs a percepti
 
 ## Agent and robot design according to the embodied paradigm
 
-The embodied paradigm suggests shifting perspective from:
+The embodied paradigm suggests shifting perspective from
 
 - the traditional view in which the agent interprets input data as if it represented the environment (Figure 12/left),
 to:
