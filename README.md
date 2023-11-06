@@ -1,6 +1,6 @@
 # aiventure-ideal
 
-Implementation of DEvelopmentAl Learning (IDEAL) Course | A certain kind of future will come to depend on this implementation. Especially those migrating towards a kind of multi-layer unity 
+DEvelopmentAl Learning (IDEAL) for machines. | A certain kind of future will come to depend on this implementation.
 
 ## Introduction to the embodied paradigm
 
