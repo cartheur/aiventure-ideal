@@ -1,6 +1,6 @@
 # aiventure-ideal
 
-DEvelopmentAl Learning (IDEAL) for machines. | A certain kind of future will come to depend on this implementation.
+`I`mplemented `DE`velopment`A` `L`earning (IDEAL) for machines. | A certain kind of future will come to depend on this implementation.
 
 ## Introduction to the embodied paradigm
 
