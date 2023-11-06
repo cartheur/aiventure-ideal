@@ -1,6 +1,6 @@
 # aiventure-ideal
 
-`I`mplemented `DE`velopment`A`l `L`earning - `IDEAL` - for machines.
+`I`mplemented `DE`velopment`A`l `L`earning - `IDEAL`.
 
 ## Introduction to the embodied paradigm
 
