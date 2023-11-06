@@ -4,7 +4,7 @@ DEvelopmentAl Learning (IDEAL) for machines. | A certain kind of future will com
 
 ## Introduction to the embodied paradigm
 
-The primary message of this learning is:
+The *embodied* paradigm operates from this foundational statement:
 
 **Do not consider the agent's input data as the agent's perception of its environment.**
 
