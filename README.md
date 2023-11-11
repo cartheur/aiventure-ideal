@@ -8,7 +8,7 @@ The *embodied* paradigm operates at this foundational statement:
 
 **Do not consider the agent's input data as the agent's perception of its environment.**
 
-The agent is not a passive observer of reality, but rather constructs a perception of reality through active interaction. The term embodied means that the agent must be a part of reality for this active interaction to happen. Those of you who have a background in cognitive science or psychology are probably already familiar with this idea theoretically. In Lesson 1, however, we wish to introduce how this idea translates into the practical design of artificial agents and robots.
+The agent is not a passive observer of reality, rather constructs a perception of reality through active interaction. The term embodied means that the agent must be a part of reality for this active interaction to happen. Those of you who have a background in cognitive science or psychology are probably already familiar with this idea theoretically. In Lesson 1, however, we wish to introduce how this idea translates into the practical design of artificial agents and robots.
 
 ## Agent and robot design according to the embodied paradigm
 
