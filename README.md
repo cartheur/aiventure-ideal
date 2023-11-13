@@ -4,7 +4,7 @@
 
 ## Introduction to the embodied paradigm
 
-The *embodied* paradigm operates at this foundational statement:
+The *embodied* paradigm operates with this foundational statement:
 
 **Do not consider the agent's input data as the agent's perception of its environment.**
 
