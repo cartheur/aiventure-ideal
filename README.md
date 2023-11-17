@@ -1,6 +1,6 @@
-## NOTE: I am completely rewriting this repository over the next few days. 
-
 # aiventure-ideal
+
+Patience while sorting the organization of this repository.
 
 `I`mplemented `DE`velopment`A`l `L`earning - `IDEAL`.
 
